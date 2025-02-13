@@ -39,7 +39,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-                export KUBECONFIG=/var/lib/jenkin/.kube/config
+                export KUBECONFIG=/var/lib/jenkins/.kube/config
 
                 kubectl config set-cluster minikube --server=https://192.168.49.8443 --insecure-skip-tls-verify=true
                 kubectl config use-context minikube
