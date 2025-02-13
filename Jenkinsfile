@@ -12,7 +12,10 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                git branch: 'main', url: 'https://github.com/Johin2/StudyBuddy.git'
+                git branch: 'main', url: 'git@github.com:Johin2/StudyBuddy.git'
+                // withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                //     sh 'git clone https://$GIT_USER:$GIT_TOKEN@github.com/Johin2/StudyBuddy.git'
+                // }
             }
         }
 
