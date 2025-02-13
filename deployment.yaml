@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studybuddy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: studybuddy
+  template:
+    metadata:
+      labels:
+        app: studybuddy
+    spec:
+      containers:
+      - name: studybuddy
+        image: johin714/studybuddy:latest  # Make sure this image exists
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: studybuddy-service
+spec:
+  selector:
+    app: studybuddy
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
