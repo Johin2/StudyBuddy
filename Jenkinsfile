@@ -41,7 +41,7 @@ pipeline {
                 sh '''
                 export KUBECONFIG=/var/lib/jenkins/.kube/config
 
-                kubectl config set-cluster minikube --server=https://192.168.49:8443 --insecure-skip-tls-verify=true
+                kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --insecure-skip-tls-verify=true
                 kubectl config use-context minikube
                 kubectl set image deployment/studybuddy studybuddy=$DOCKER_IMAGE:latest
                 kubectl rollout status deployment/studybuddy
