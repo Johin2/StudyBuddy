@@ -41,11 +41,8 @@ pipeline {
                 sh '''
                 export KUBECONFIG=/root/.kube/config
                 export MINIKUBE_HOME=/var/jenkins_home/.minikube
-                export KUBERNETES_CERT_PATH=/var/jenkins_home/.minikube/profiles/minikube
-                export KUBERNETES_SERVICE_HOST=minikube
-                export KUBERNETES_SERVICE_PORT=8443
 
-
+                kubectl config set-cluster minikube --server=https://192.168.49.8443 --insecure-skip-tls-verify=true
                 kubectl config use-context minikube
                 kubectl set image deployment/studybuddy studybuddy=$DOCKER_IMAGE:latest
                 kubectl rollout status deployment/studybuddy
