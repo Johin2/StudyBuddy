@@ -38,10 +38,12 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh """
+                sh '''
+                export KUBECONFIG=/root/.kube/config
+                kubectl config use-context minikube
                 kubectl set image deployment/studybuddy studybuddy=$DOCKER_IMAGE:latest --record
                 kubectl rollout status deployment/studybuddy
-                """
+                '''
             }
         }
     }
