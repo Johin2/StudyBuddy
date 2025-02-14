@@ -4,13 +4,11 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 
-const Signup = () => {
+const Login = () => {
 
   const router = useRouter()
 
   const [formData, setformData] = useState({
-    firstName: "", 
-    lastName: "",
     email: "", 
     password: ""
 })
@@ -26,10 +24,11 @@ const handleSubmit = async (e) =>{
   e.preventDefault();
 
   try{
-    const response = await axios.post('/api/signup', formData);
-    if (response.status == 201) {
+    const response = await axios.post('/api/login', formData);
+    if (response.status == 200) {
       setSuccess(response.data.message)
       setError("")
+      router.push('/dashboard')
     }
     else {
       setError(response.data.error)
@@ -44,30 +43,9 @@ const handleSubmit = async (e) =>{
   return (
     <div className='flex h-screen items-center justify-center'>
         <div className=' flex flex-col bg-gray-900 rounded-lg bg-opacity-60 py-[10%] px-[10%] items-center'>
-            <p className='text-3xl font-bold text-white'>Signup</p>
+            <p className='text-3xl font-bold text-white'>Login</p>
             <div className='items-center justify-center'>
                 <form action="" onSubmit = {handleSubmit} className='flex flex-col space-y-3 mt-6 items-center'>
-                  <div>
-                   <input 
-                   type="text" 
-                   placeholder='First name'
-                   name = "firstName"
-                   value={formData.firstName}
-                   onChange={handleChange}
-                   className='pl-4 placeholder:pl-4 rounded-sm h-9'
-                   required/>
-                  </div>
-                  
-                  <div>
-                   <input 
-                   type="text" 
-                   placeholder='Last name' 
-                   name = "lastName"
-                   value={formData.lastName}
-                   onChange={handleChange}
-                   className='pl-4 placeholder:pl-4 rounded-sm h-9'
-                   required/>
-                  </div>
 
                   <div>
                    <input 
@@ -103,11 +81,11 @@ const handleSubmit = async (e) =>{
 
             </div>
             <div className='mt-12'>
-              <p className='text-md font-semibold text-white hover:text-blue-500 hover:underline hover:cursor-pointer' onClick={() => router.push('/login')}>Login</p>
+              <p className='text-md font-semibold text-white hover:text-blue-500 hover:underline hover:cursor-pointer' onClick={() => router.push('/login')}>Signup</p>
             </div>
         </div>
     </div>
   )
 }
 
-export default Signup
+export default Login

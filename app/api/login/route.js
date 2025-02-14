@@ -11,7 +11,8 @@ export async function POST(request){
 
         if (!email || !password){
             return new Response(
-                JSON.stringify({error: "Email and password are required", status: 400})
+                JSON.stringify({error: "Email and password are required"}), 
+                {status: 400},
             )
         }
     
@@ -38,15 +39,16 @@ export async function POST(request){
             id: existingUser._id,
             email: existingUser.email
         }
-        const token = jwt.sign(payload, process.env.JWT_SECRET, {expiredIn: "1h"});
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "1h"});
 
         const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {expiresIn: '7d'})
 
-        return new Response(JSON.stringify({token, refreshToken}, {status: 200}))
+        return new Response(JSON.stringify({token, refreshToken}), {status: 200})
     } catch(error){
         console.log("Login error:", error)
         return new Response(
-            JSON.stringify({error: "Internal server Error"}),{status: 500}
+            JSON.stringify({error: "Internal server Error"}),
+            {status: 500},
         )
     }
 }

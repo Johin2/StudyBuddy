@@ -26,9 +26,6 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          // Render the login UI when no user is logged in.
-          // Here we pass the login function to the Hero component,
-          // so that it can call login with user credentials.
           <Hero login={login} />
         )}
       </main>
