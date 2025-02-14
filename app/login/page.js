@@ -81,7 +81,7 @@ const handleSubmit = async (e) =>{
 
             </div>
             <div className='mt-12'>
-              <p className='text-md font-semibold text-white hover:text-blue-500 hover:underline hover:cursor-pointer' onClick={() => router.push('/login')}>Signup</p>
+              <p className='text-md font-semibold text-white hover:text-blue-500 hover:underline hover:cursor-pointer' onClick={() => router.push('/signup')}>Signup</p>
             </div>
         </div>
     </div>

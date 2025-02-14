@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <AuthProvider>
       <html lang="en">
-        <body className="bg-black">
+        <body>
           {children}
         </body>
       </html>
