@@ -15,6 +15,7 @@ spec:
       containers:
       - name: studybuddy
         image: johin714/studybuddy:latest  # Make sure this image exists
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
 ---
