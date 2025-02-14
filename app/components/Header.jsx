@@ -22,7 +22,11 @@ const Header = ({ isLoggedIn }) => {
                             className='hover: underline hover:cursor-pointer'>
                             Signup
                             </li>
-                            <li>Login</li>
+                            <li 
+                            onClick={() => router.push("/login")}
+                            className='hover: underline hover:cursor-pointer'>
+                            Login
+                            </li>
                         </>
                     )}
                 </ul>
