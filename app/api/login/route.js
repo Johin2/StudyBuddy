@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { User } from "@/app/models/User";
 import { connectDB } from "@/app/lib/mongodb";
 import bcrypt from 'bcrypt'

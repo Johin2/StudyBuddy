@@ -19,9 +19,20 @@ pipeline {
             }
         }
 
+        stage('Testing'){
+            steps{
+                dir('StudyBuddy'){
+                    sh 'npm test'
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE:latest .'
+                dir('StudyBuddy'){
+                    sh 'docker build -t $DOCKER_IMAGE:latest .'
+                }
+                
             }
         }
 
