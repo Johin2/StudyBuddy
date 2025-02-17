@@ -7,6 +7,8 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer;
 
 beforeAll(async () => {
+    process.env.JWT_SECRET = 'secret-token'
+    process.env.JWT_REFRESH_SECRET = 'refresh-secret-token'
     mongoServer = await MongoMemoryServer.create()
     const uri = mongoServer.getUri()
     await mongoose.connect(uri)
