@@ -22,6 +22,7 @@ pipeline {
         stage('Testing'){
             steps{
                 dir('StudyBuddy'){
+                    sh 'npm ci'
                     sh 'npm test'
                 }
             }
