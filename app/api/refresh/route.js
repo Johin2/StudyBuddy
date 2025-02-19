@@ -6,15 +6,15 @@ export async function POST(request){
 
     if (!refreshToken) {
         return new Response(
-            JSON.stringify({error: "Refresh token is required", status: 400}),
+            JSON.stringify({error: "Refresh token is required"}), {status: 400},
         );
     }
     let payload;
     try{
-        paylaod = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     } catch (error) {
         return new Response(
-            JSON.stringify({error: "Invalid refresh token", status: 401})
+            JSON.stringify({error: "Invalid refresh token"}), {status: 401}
         )
     }
 
@@ -25,13 +25,13 @@ export async function POST(request){
     );
 
     return new Response(
-        JSON.stringify({token: newAccessToken, status: 200})
+        JSON.stringify({token: newAccessToken}), {status: 200}
     )
 
     } catch (error){
         console.error("Refresh token endpoint error", error);
         return new Response(
-            JSON.stringify({error: "Internal server error", status: 500})
+            JSON.stringify({error: "Internal server error"}), {status: 500}
         )
     };
 }
