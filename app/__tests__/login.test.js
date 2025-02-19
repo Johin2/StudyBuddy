@@ -46,6 +46,35 @@ describe('POST /api/login', () => {
         const data = await res.json()
         expect(data).toEqual({error: 'Invalid Credentials'})
     })
+
+    it('should return an error for missing credentials', async () => {
+        const req = new Request('http://localhost/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({password: 'incorrect'})
+        });
+
+        const res = await POST(req)
+        expect(res.status).toBe(400)
+
+        const data = await res.json()
+        expect(data).toEqual({error: 'Email and password are required'})
+    })
+
+
+    it('should return an error for missing credentials', async () => {
+        const req = new Request('http://localhost/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: 'test@gmail.com', password: 'secret1'})
+        });
+
+        const res = await POST(req)
+        expect(res.status).toBe(401)
+
+        const data = await res.json()
+        expect(data).toEqual({error: 'Invalid Password'})
+    })
 })
 
 afterAll(async () => {
