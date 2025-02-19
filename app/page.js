@@ -1,21 +1,21 @@
 'use client'
-import React from "react";
+import React, { useState } from "react";
 import Hero from "./components/Hero";
-import Header from "./components/Header";
 import { useAuth } from "./Context/AuthContext";
+import AuthModal from "./components/Modal";
 
 export default function Home() {
   const { user, login, logout } = useAuth();
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="w-full">
-        <Header isLoggedIn={!!user} />
-      </header>
 
       <main className="flex-grow flex items-center justify-center">
         {user ? (
-          // Render UI for logged-in users
           <div>
             <h1>Welcome, {user.email}</h1>
             <button
@@ -26,9 +26,11 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          <Hero login={login} />
+          <Hero login={openModal} />
         )}
       </main>
+
+      <AuthModal isOpen={modalOpen} onClose={closeModal} />
     </div>
   );
 }
