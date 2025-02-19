@@ -15,19 +15,7 @@ export default function Home() {
     <div className="flex flex-col h-screen">
 
       <main className="flex-grow flex items-center justify-center">
-        {user ? (
-          <div>
-            <h1>Welcome, {user.email}</h1>
-            <button
-              onClick={logout}
-              className="px-4 py-2 bg-red-500 text-white rounded"
-            >
-              Logout
-            </button>
-          </div>
-        ) : (
-          <Hero login={openModal} />
-        )}
+          <Hero login={openModal} isUser={user} />
       </main>
 
       <AuthModal isOpen={modalOpen} onClose={closeModal} />
