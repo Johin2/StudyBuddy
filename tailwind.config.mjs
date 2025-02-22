@@ -9,7 +9,7 @@ export default {
     extend: {
       colors: {
         darkBlue: "#0081A7",
-        mintGreen: "#0AFB9",
+        mintGreen: "#00AFB9",
         lightYellow: "#FDFCDC",
         skin: "#FED9B7",
         marsOrange: "#F07167",
