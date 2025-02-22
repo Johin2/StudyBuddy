@@ -17,6 +17,8 @@
     "@langchain/mongodb": "^0.1.0",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
+    "formidable": "^3.5.2",
+    "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "langchain": "^0.3.19",
@@ -27,6 +29,8 @@
     "node-fetch": "^2.7.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.5",
+    "react-easy-crop": "^5.2.0",
     "styled-jsx": "^5.1.6"
   },
   "devDependencies": {
