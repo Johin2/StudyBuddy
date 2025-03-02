@@ -8,11 +8,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        darkBlue: "#0081A7",
-        mintGreen: "#00AFB9",
-        lightYellow: "#FDFCDC",
-        skin: "#FED9B7",
-        marsOrange: "#F07167",
+        darkBlue: "#023047",
+        midBlue: "#219EBC",
+        lightBlue: "#8ECAE6",
+        lightYellow: "#FFB703",
+        marsOrange: "#FB8500",
         background: "var(--background)",
         foreground: "var(--foreground)",
       },

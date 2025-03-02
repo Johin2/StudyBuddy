@@ -41,31 +41,17 @@ const Hero = ({ isUser }) => {
   };
 
   return isUser ? (
-    <div className="grid grid-cols-[20%_80%] h-screen w-screen">
-      <div className="grid grid-cols-[20%_80%] p-4 gap-4">
-        <div className="bg-blue-300 rounded-md flex items-center justify-center">
-          <span className="text-white">Left Part</span>
-        </div>
-        <div className="bg-green-300 rounded-md flex flex-col items-center justify-center p-4">
-
-        </div>
-      </div>
-      <div className="bg-white p-4 grid gap-4 mt-32">
-        <div className="bg-red-300 h-48 rounded-md flex items-center justify-center">
-          <span className="text-white text-lg">Big Rectangle</span>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-yellow-300 h-32 rounded-md flex items-center justify-center">
-            <span className="text-white">Box A</span>
-          </div>
-          <div className="bg-purple-300 h-32 rounded-md flex items-center justify-center">
-            <span className="text-white">Box B</span>
-          </div>
-          <div className="bg-pink-300 h-32 rounded-md flex items-center justify-center">
-            <span className="text-white">Box C</span>
+    <div className="w-full h-screen">
+        <div className='flex flex-col justify-center'>
+          <div className='flex justify-center bg-marsOrange bg-opacity-85 w-full items-center h-24'>
+            <ul className='flex space-x-3 text-xl font-bold'>
+              <li>About</li>
+              <li>Summarizer</li>
+              <li>Flash cards</li>
+              <li>Chat</li>
+            </ul>
           </div>
         </div>
-      </div>
     </div>
   ) : (
     <div className="flex h-screen w-screen">
