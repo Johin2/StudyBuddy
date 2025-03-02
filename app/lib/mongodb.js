@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGO_URL = "mongodb://mongodb-service:27017/studybuddy"
+const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/studybuddy"
 
 export async function connectDB() {
     if (mongoose.connection.readyState >= 1) return;
