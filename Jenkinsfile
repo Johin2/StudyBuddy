@@ -57,7 +57,8 @@ pipeline {
                 kubectl config use-context minikube
 
                 kubectl apply -f mongodeployment.yaml
-
+                kubectl apply -f secrets.yaml 
+                
                 kubectl set image deployment/studybuddy studybuddy=$DOCKER_IMAGE:latest
                 kubectl rollout restart deployment studybuddy
                 kubectl rollout status deployment/studybuddy
