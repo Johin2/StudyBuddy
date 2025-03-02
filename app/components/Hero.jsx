@@ -70,7 +70,7 @@ const Hero = ({ isUser }) => {
               onClick={() => setIsSignup(true)}
               className={`flex-1 flex justify-center items-center cursor-pointer rounded-md ${
                 isSignup
-                  ? 'bg-mintGreen text-white font-semibold'
+                  ? 'bg-midBlue text-white font-semibold'
                   : 'bg-gray-100'
               }`}
             >
@@ -133,7 +133,7 @@ const Hero = ({ isUser }) => {
                 type="submit"
                 className={`w-full p-3 rounded-md ${
                   isSignup
-                    ? 'bg-mintGreen hover:bg-green-500'
+                    ? 'bg-midBlue hover:bg-blue-400'
                     : 'bg-marsOrange hover:bg-orange-600'
                 } text-white`}
               >
