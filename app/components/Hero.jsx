@@ -61,8 +61,8 @@ const Hero = ({ isUser }) => {
   return isUser ? (
     <div className="flex w-full h-screen">
       <div className='flex flex-col justify-center'>
-        <div className='flex justify-center bg-opacity-85 w-screen items-center h-16'>
-          <ul className='flex space-x-12 text-lg font-bold'>
+        <div className='flex justify-center w-screen items-center h-16'>
+          <ul className='flex space-x-12 text-lg font-bold text-white'>
             <li onClick={handleAbout} className='hover:text-gray-600'>About</li>
             <li onClick={handleSummarizer} className='hover:text-gray-600'>Summarizer</li>
             <li onClick={handleFlashCards} className='hover:text-gray-600'>Flash cards</li>
@@ -72,35 +72,36 @@ const Hero = ({ isUser }) => {
 
         <div className='grid grid-cols-4 grid-rows-2 gap-10 h-full w-full p-12'>
           <div className='col-span-2 row-span-3 flex flex-col justify-center gap-6'>
-            <h1 className='text-4xl font-bold text-gray-800'>
+          <img src="/images/home-bg.svg" alt="backdrop" className='absolute inset-0 -z-10 w-full h-full object-cover'/>
+            <h1 className='text-4xl font-bold text-gray-400'>
               Study Smarter with <span className='text-midBlue'>StudyBuddy</span>
             </h1>
-            <p className='text-gray-600 text-lg'>
-            Your ultimate study companion, Organize notes, generate summaries, create flashcards, and chat with peers-effortlessly
+            <p className='text-gray-100 text-lg'>
+            Your ultimate study companion, Organize notes, generate summaries, create flashcards, and use AI to efficiently learn new topics
             </p>
             <button className='bg-marsOrange text-white px-6 py-3 rounded-lg shadow-md hover:bg-amber-600 transition' onClick={() => handleFlashCards()}>
               Get Started
             </button>
           </div>
-          <div className='flex flex-col justify-center items-center rounded-md border border-'>
+          <div className='flex flex-col space-y-3 justify-center items-center rounded-md border border-'>
             <span className='text-7xl'>📖</span>
-            <h2 className='text-xl font-semibold mt-2'>About</h2>
-            <p className='text-gray-500 text-center text-md'>Learn how StudyBuddy can help you</p>
+            <h2 className='text-xl font-semibold mt-2 text-white'>About</h2>
+            <p className='text-gray-300 text-center text-md'>Learn how StudyBuddy can help you</p>
           </div>
-          <div className='flex flex-col  justify-center items-center rounded-md border border-1'>
+          <div className='flex flex-col space-y-3  justify-center items-center rounded-md border border-1'>
             <span className='text-7xl'>📝</span>
-            <h2 className='text-xl font-semibold mt-2'>Summarizer</h2>
-            <p className='text-gray-500 text-center text-md'>Automatically summarize notes and articles</p>
+            <h2 className='text-xl font-semibold mt-2 text-white'>Summarizer</h2>
+            <p className='text-gray-300 text-center text-md'>Automatically summarize notes and articles</p>
           </div>
-          <div className='flex flex-col justify-center items-center rounded-md border border-1'>
+          <div className='flex flex-col space-y-3 justify-center items-center rounded-md border border-1'>
             <span className='text-7xl'>🎴</span>
-            <h2 className='text-xl font-semibold mt-2'>Flashcards</h2>
-            <p className='text-gray-500 text-center text-md'>Create and study with digital flashcards</p>
+            <h2 className='text-xl font-semibold mt-2 text-white'>Flashcards</h2>
+            <p className='text-gray-300 text-center text-md'>Create and study with digital flashcards</p>
           </div>
-          <div className='flex flex-col justify-center items-center rounded-md border border-1'>
+          <div className='flex flex-col space-y-3 justify-center items-center rounded-md border border-1'>
             <span className='text-7xl'>🤖</span>
-            <h2 className='text-xl font-semibold mt-2'>StudyGPT</h2>
-            <p className='text-gray-500 text-center text-md'> Chat with an AI-powered assistant for instant study help.</p> 
+            <h2 className='text-xl font-semibold mt-2 text-white'>StudyGPT</h2>
+            <p className='text-gray-300 text-center text-md'> Chat with an AI-powered assistant for instant study help.</p> 
           </div>
 
         </div>
