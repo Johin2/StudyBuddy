@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Hero from "./components/Hero";
 import { useAuth } from "./Context/AuthContext";
 import AuthModal from "./components/Modal";
+import Navbar from "./components/Navbar";
 
 export default function Home() {
   const { user, login, logout } = useAuth();
@@ -13,8 +14,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen">
-
-      <main className="flex-grow flex items-center justify-center">
+      
+      <main className="flex flex-grow items-center justify-center">
           <Hero login={openModal} isUser={user} />
       </main>
 

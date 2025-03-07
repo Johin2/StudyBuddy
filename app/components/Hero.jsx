@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import { useRouter } from 'next/navigation';
+import Navbar from './Navbar';
 
 const Hero = ({ isUser }) => {
+
   const { login } = useAuth();
   const router = useRouter();
 
@@ -42,34 +44,11 @@ const Hero = ({ isUser }) => {
     }
   };
 
-  const handleAbout = async (e) => {
-    router.push('/about')
-  }
-
-  const handleSummarizer = async (e) => {
-    router.push('/summarizer')
-  }
-
-  const handleFlashCards = async (e) => {
-    router.push('/flashcards')
-  }
-
-  const handleChat = async (e) => {
-    router.push('/chat')
-  }
 
   return isUser ? (
-    <div className="flex w-full h-screen">
+    <div className="flex w-full h-screen pt-[64px]">
       <div className='flex flex-col justify-center'>
-        <div className='flex justify-center w-screen items-center h-16'>
-          <ul className='flex space-x-12 text-lg font-bold text-white'>
-            <li onClick={handleAbout} className='hover:text-gray-600'>About</li>
-            <li onClick={handleSummarizer} className='hover:text-gray-600'>Summarizer</li>
-            <li onClick={handleFlashCards} className='hover:text-gray-600'>Flash cards</li>
-            <li onClick={handleChat} className='hover:text-gray-600'>Chat</li>
-          </ul>
-        </div>
-
+        <Navbar className={'text-white'}/>
         <div className='grid grid-cols-4 grid-rows-2 gap-10 h-full w-full p-12'>
           <div className='col-span-2 row-span-3 flex flex-col justify-center gap-6'>
           <img src="/images/home-bg.svg" alt="backdrop" className='absolute inset-0 -z-10 w-full h-full object-cover'/>
@@ -103,14 +82,15 @@ const Hero = ({ isUser }) => {
             <h2 className='text-xl font-semibold mt-2 text-white'>StudyGPT</h2>
             <p className='text-gray-300 text-center text-md'> Chat with an AI-powered assistant for instant study help.</p> 
           </div>
-
         </div>
-
       </div>
     </div>
   ) : (
     <div className="flex h-screen w-screen">
       <div className="w-[50%] h-full overflow-hidden rounded-md">
+      <h1 className="text-2xl fixed top-0 left-0 p-4 text-white font-bold ml-4 cursor-pointer">
+        StudyBuddy
+      </h1>
         <img
           src="/images/login-signup.png"
           alt="cover-image"

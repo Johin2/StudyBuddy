@@ -1,9 +1,13 @@
+'use client'
 import React from 'react'
+import Navbar from '../components/Navbar'
 
-const route = () => {
+const page = () => {
   return (
-    <div>route</div>
+    <div>
+      <Navbar className={'text-black'}/>
+    </div>
   )
 }
 
-export default route
+export default page
