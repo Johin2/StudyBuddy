@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { jwtDecode } from "jwt-decode"; // Make sure you're importing jwtDecode correctly
+import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext({});
 
@@ -19,8 +19,9 @@ export const AuthProvider = ({ children }) => {
 
   const refreshAccessToken = async () => {
     const storedRefreshToken = localStorage.getItem('refreshToken');
+
     if (!storedRefreshToken) {
-      logout();
+      logout(); // If there's no refresh token, logout immediately
       return;
     }
 
@@ -30,10 +31,12 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken: storedRefreshToken })
       });
+
       if (!res.ok) {
         logout();
         return;
       }
+
       const data = await res.json();
       const newAccessToken = data.token;
       localStorage.setItem("accessToken", newAccessToken);
@@ -46,22 +49,43 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        if (decoded.exp * 1000 < Date.now()) {
-          refreshAccessToken();
-        } else {
-          setUser(decoded);
+    const checkAuth = () => {
+      const token = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (!refreshToken) {
+        logout(); // Logout if the refresh token is missing
+        return;
+      }
+
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          if (decoded.exp * 1000 < Date.now()) {
+            refreshAccessToken();
+          } else {
+            setUser(decoded);
+          }
+        } catch (error) {
+          console.error("Error decoding token", error);
+          logout();
         }
-      } catch (error) {
-        console.error("Error decoding token", error);
+      } else {
         logout();
       }
-    } else {
-      router.push('/');
-    }
+    };
+
+    checkAuth();
+
+    // Listen for changes in localStorage to log out immediately
+    const handleStorageChange = (event) => {
+      if (event.key === "refreshToken" && !event.newValue) {
+        logout(); // Logout when refreshToken is removed
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const login = async () => {
@@ -70,6 +94,7 @@ export const AuthProvider = ({ children }) => {
       console.error("No token found in localStorage");
       return;
     }
+
     try {
       const decoded = jwtDecode(token);
       if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {

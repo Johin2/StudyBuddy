@@ -69,7 +69,7 @@ const InputBar = () => {
   }
   return (
     <div
-      className={`flex flex-col justify-center w-[75%] p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-midBlue" : "border-gray-300"}`}
+      className={`flex flex-col justify-center w-[65%] p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-midBlue" : "border-gray-300"}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
