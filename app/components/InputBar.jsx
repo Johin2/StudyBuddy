@@ -24,7 +24,7 @@ const InputBar = () => {
 
   };
 
-  const handleFileInputChange = (event) =>{
+  const handleFileInputChange = (event) => {
     handleFileUpload(event.target.files[0])
   }
 
@@ -69,34 +69,37 @@ const InputBar = () => {
   }
   return (
     <div
-    className={`flex flex-col w-full p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-midBlue": "border-gray-300"}`}
-    onDragOver={handleDragOver}
-    onDragLeave={handleDragLeave}
-    onDrop={handleDrop}
+      className={`flex flex-col justify-center w-[75%] p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-midBlue" : "border-gray-300"}`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       <div className='flex items-center'>
-        <label htmlFor="fileUpload" className='cursor-pointer p-2 rounded-full hover:bg-gray-200 transition'>
+        <label
+          htmlFor="fileUpload"
+          className='flex justify-center items-center cursor-pointer p-2 rounded-full w-10 h-10 hover:bg-gray-200 transition'
+        >
           <span className='text-2xl text-gray-500'>+</span>
         </label>
-        <input 
-        type="file" 
-        className='hidden' 
-        accept=".txt, .pdf, .docx" 
-        onChange={handleFileInputChange} 
+        <input
+          type="file"
+          className='hidden'
+          accept=".txt, .pdf, .docx"
+          onChange={handleFileInputChange}
         />
 
-        <input 
-        type="text"
-        className='flex-1 p-2 mx-2 border-none focus:ring-0 outline-none text-gray-700 placeholder-gray-700'
-        placeholder="Type or paste text here..."
-        value={text}
-        onChange={handleTextChange}
-        onPaste={handlePaste}
+        <input
+          type="text"
+          className='flex-1 p-2 mx-2 border-none focus:ring-0 outline-none text-gray-700 placeholder-gray-700'
+          placeholder="Type or paste text here..."
+          value={text}
+          onChange={handleTextChange}
+          onPaste={handlePaste}
         />
 
         <button
-        onClick={handleSend}
-        className='p-2 bg-midBlue text-white rounded-lg hover:bg-marsOrange transition ml-3'
+          onClick={handleSend}
+          className='p-2 bg-midBlue text-white rounded-lg hover:bg-marsOrange transition ml-3'
         >
           Send
         </button>
@@ -112,11 +115,11 @@ const InputBar = () => {
             <div className='flex items-center justify-between'>
               <p className='text-gray-700 text-sm truncate max-w-[80%]'>{file.name}</p>
               <button
-              className='text-red-500 text-md font-bold hover:text-red-700'
-              onClick={() => {
-                setFile(null);
-                setFileContent("")
-              }}
+                className='text-red-500 text-md font-bold hover:text-red-700'
+                onClick={() => {
+                  setFile(null);
+                  setFileContent("")
+                }}
               >
                 x
               </button>

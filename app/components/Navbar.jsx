@@ -1,12 +1,12 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 
-const Navbar = ({className}) => {
+const Navbar = ({className, hidden}) => {
   const router = useRouter();
 
   return (
     <nav className={`flex p-4 w-full fixed top-0 left-0 justify-between items-center ${className}`}>
-      <h1 className={`text-2xl font-bold ml-4 cursor-pointer ${className}`} onClick={() => router.push('/')}>
+      <h1 className={`text-2xl font-bold ml-4 cursor-pointer ${className} ${hidden}`} onClick={() => router.push('/')}>
         StudyBuddy
       </h1>
       <div className="absolute left-1/2 transform -translate-x-1/2">
