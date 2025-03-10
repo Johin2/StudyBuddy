@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 
-const InputBar = () => {
+const InputBar = ({ width }) => {
   const [text, setText] = useState("")
   const [file, setFile] = useState(null)
   const [fileContent, setFileContent] = useState("")
@@ -69,7 +69,7 @@ const InputBar = () => {
   }
   return (
     <div
-      className={`flex flex-col justify-center w-[65%] p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-midBlue" : "border-gray-300"}`}
+      className={`flex flex-col justify-center ${width} p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-midBlue" : "border-gray-300"}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -82,11 +82,13 @@ const InputBar = () => {
           <span className='text-2xl text-gray-500'>+</span>
         </label>
         <input
+          id="fileUpload"
           type="file"
-          className='hidden'
+          className="hidden"
           accept=".txt, .pdf, .docx"
           onChange={handleFileInputChange}
         />
+
 
         <input
           type="text"
