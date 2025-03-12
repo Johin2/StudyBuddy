@@ -237,7 +237,7 @@ export default function FlashcardsPage() {
       </div>
 
       {/* Bottom InputBar */}
-      <div className="w-full flex justify-center items-center">
+      <div className="w-full mb-2 flex justify-center items-center">
         <div className="w-[65%]">
           <InputBar className="w-[65%]" />
         </div>
