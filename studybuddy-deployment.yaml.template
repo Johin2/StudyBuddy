@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studybuddy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: studybuddy
+  template:
+    metadata:
+      labels:
+        app: studybuddy
+    spec:
+      containers:
+      - name: studybuddy
+        image: johin714/studybuddy:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        env:
+        - name: MONGO_URL
+          value: "mongodb://mongodb-service:27017/studybuddy"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: JWT_SECRET
+        - name: JWT_REFRESH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: JWT_REFRESH_SECRET
+        - name: GEMINI_API_KEY
+          value: "${GEMINI_API_KEY}"
+        - name: MISTRAL_API_KEY
+          value: "${MISTRAL_API_KEY}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: studybuddy-service
+spec:
+  selector:
+    app: studybuddy
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: studybuddy-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: studybuddy
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80

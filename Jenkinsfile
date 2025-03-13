@@ -62,7 +62,7 @@ pipeline {
         kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --insecure-skip-tls-verify=true
         kubectl config use-context minikube
 
-        # Create or update the secret dynamically using Jenkins credentials.
+        # Create or update the JWT secret (if needed)
         cat <<EOF | kubectl apply --validate=false -f -
         apiVersion: v1
         kind: Secret
@@ -74,20 +74,23 @@ pipeline {
           JWT_REFRESH_SECRET: $(echo -n "$JWT_REFRESH_SECRET" | base64)
         EOF
 
-        # Now substitute the environment variables in the deployment template.
+        # Substitute the environment variables in the deployment YAML template.
         envsubst < studybuddy-deployment.yaml.template > studybuddy-deployment.yaml
-        kubectl apply --validate=false -f studybuddy-deployment.yaml
 
         # Apply the MongoDB deployment.
         kubectl apply --validate=false -f mongodeployment.yaml
 
-        # Rollout restart and wait for rollout to complete.
+        # Apply the updated deployment.
+        kubectl apply --validate=false -f studybuddy-deployment.yaml
+
+        # Rollout restart and wait for it to complete.
         kubectl set image deployment/studybuddy studybuddy=$DOCKER_IMAGE:latest
         kubectl rollout restart deployment studybuddy
         kubectl rollout status deployment/studybuddy
       '''
     }
   }
+
   }
   
   post {
