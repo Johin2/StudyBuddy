@@ -14,12 +14,12 @@ spec:
     spec:
       containers:
       - name: studybuddy
-        image: johin714/studybuddy:latest  # Make sure this image exists
+        image: johin714/studybuddy:latest  # Ensure this image exists
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
         resources:
-          requests: 
+          requests:
             cpu: "100m"
             memory: "128Mi"
           limits:
@@ -28,6 +28,7 @@ spec:
         env:
         - name: MONGO_URL
           value: "mongodb://mongodb-service:27017/studybuddy"
+        # You can continue to use a secret for JWT if you wish.
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
@@ -38,16 +39,11 @@ spec:
             secretKeyRef:
               name: secrets
               key: JWT_REFRESH_SECRET
+        # API keys are now injected via Jenkins environment variables.
         - name: GEMINI_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: secrets
-              key: GEMINI_API_KEY
+          value: "${GEMINI_API_KEY}"
         - name: MISTRAL_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: secrets
-              key: MISTRAL_API_KEY
+          value: "${MISTRAL_API_KEY}"
 ---
 apiVersion: v1
 kind: Service
@@ -74,9 +70,9 @@ spec:
   minReplicas: 1
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
