@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: studybuddy
-        image: johin714/studybuddy:latest  # Ensure this image exists
+        image: johin714/studybuddy:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -28,22 +28,14 @@ spec:
         env:
         - name: MONGO_URL
           value: "mongodb://mongodb-service:27017/studybuddy"
-        # You can continue to use a secret for JWT if you wish.
         - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: secrets
-              key: JWT_SECRET
+          value: "${JWT_SECRET}"         # Injected via Jenkins environment
         - name: JWT_REFRESH_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: secrets
-              key: JWT_REFRESH_SECRET
-        # API keys are now injected via Jenkins environment variables.
+          value: "${JWT_REFRESH_SECRET}" # Injected via Jenkins environment
         - name: GEMINI_API_KEY
-          value: "${GEMINI_API_KEY}"
+          value: "${GEMINI_API_KEY}"     # Injected via Jenkins environment
         - name: MISTRAL_API_KEY
-          value: "${MISTRAL_API_KEY}"
+          value: "${MISTRAL_API_KEY}"    # Injected via Jenkins environment
 ---
 apiVersion: v1
 kind: Service
