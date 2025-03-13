@@ -7,7 +7,6 @@ import { FiFileText, FiList, FiDollarSign, FiX, FiLoader } from 'react-icons/fi'
 const SummarizerPage = () => {
   const MAX_FREE_SUMMARIES = 5;
 
-  const [summaries, setSummaries] = useState([]); // Array of full summary strings.
   const [currentSummary, setCurrentSummary] = useState('');
   // History stored as an array of objects: { id, summary, historyPreview, keyPoints }
   const [history, setHistory] = useState([]);
@@ -55,8 +54,8 @@ const SummarizerPage = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        // data.history should be an array of summary objects.
-        setHistory(data.history);
+        setHistory(data.history.filter(item => !item.isDeleted));
+        ;
       } else {
         console.error("Failed to fetch history");
       }
@@ -74,7 +73,6 @@ const SummarizerPage = () => {
 
   const buySummary = () => {
     setErrorMessage("Purchase flow not implemented.");
-    fetchFreeCount();
     setShowPurchaseModal(false);
   };
 
@@ -101,16 +99,8 @@ const SummarizerPage = () => {
     return historyItem.historyPreview || historyItem.summary.split(/\s+/).slice(0, 5).join(" ") + "...";
   };
 
-  // Revised animateSummary function that streams the summary word-by-word using async/await.
-  const animateSummary = async (fullSummary) => {
-    const words = fullSummary.split(/\s+/).filter(Boolean);
-    let result = "";
-    for (let i = 0; i < words.length; i++) {
-      result += (i === 0 ? "" : " ") + words[i];
-      setCurrentSummary(capitalizeFirstLetter(result));
-      await new Promise(resolve => setTimeout(resolve, 150)); // Delay between words
-    }
-    // Ensure the full summary is finally set.
+  // Display the summary immediately (no streaming).
+  const displaySummary = (fullSummary) => {
     setCurrentSummary(capitalizeFirstLetter(fullSummary));
     setLoading(false);
   };
@@ -119,7 +109,7 @@ const SummarizerPage = () => {
   // Expected API response: { summary, keyPoints, historyPreview, freeDailySummariesLeft, summarizerId }
   const handleSummaryGenerated = (data) => {
     setErrorMessage("");
-    setSelectedHistoryIndex(null); // Clear selected history.
+    setSelectedHistoryIndex(null); // Clear any previously selected history.
     // Append new summary to history.
     setHistory(prev => [
       ...prev,
@@ -131,7 +121,7 @@ const SummarizerPage = () => {
       }
     ]);
     setLoading(true);
-    animateSummary(data.summary);
+    displaySummary(data.summary);
     setFreeSummariesLeft(data.freeDailySummariesLeft);
     if (data.freeDailySummariesLeft <= 0 && !subscription) {
       setShowPurchaseModal(true);
@@ -140,7 +130,9 @@ const SummarizerPage = () => {
 
   // Callback when InputBar returns an error.
   const handleSummaryError = (errorResponse) => {
-    if (errorResponse.status === 403) {
+    if (!errorResponse || !errorResponse.status) {
+      setErrorMessage("Failed to generate summary.");
+    } else if (errorResponse.status === 403) {
       setFreeSummariesLeft(0);
       setShowPurchaseModal(true);
       setErrorMessage("Daily free summaries limit reached.");
@@ -166,17 +158,19 @@ const SummarizerPage = () => {
       if (!response.ok) {
         throw new Error("Failed to delete summary");
       }
-      // Remove the summary from the history state.
+      // Remove the summary from the local state.
       const updatedHistory = history.filter((_, i) => i !== index);
       setHistory(updatedHistory);
       if (selectedHistoryIndex === index) {
         setSelectedHistoryIndex(null);
         setCurrentSummary('');
       }
-      fetchFreeCount();
+      // Do NOT update free count on deletion.
     } catch (error) {
       setErrorMessage("There was an error deleting the summary.");
       console.error("Error deleting summary:", error);
+      // Re-fetch history to ensure UI consistency.
+      fetchHistory();
     }
   };
 
@@ -206,7 +200,7 @@ const SummarizerPage = () => {
           <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-800">
             <FiList className="text-midBlue" /> Generated Summary
           </h2>
-          <div className="relative p-3 border border-gray-300 rounded-md bg-gray-100 h-4/5 overflow-y-auto mt-2 flex flex-col">
+          <div className="relative p-4 pt-12 border border-gray-300 rounded-md bg-gray-100 h-4/5 overflow-y-auto mt-2 flex flex-col">
             {loading ? (
               <div className="flex flex-col items-center">
                 <FiLoader className="animate-spin text-3xl text-gray-500" />
@@ -220,7 +214,7 @@ const SummarizerPage = () => {
             {currentSummary && !loading && (
               <button
                 onClick={handleCopy}
-                className="absolute top-2 right-2 bg-midBlue text-white px-3 py-1 rounded hover:bg-marsOrange transition"
+                className="absolute top-2 right-2 bg-midBlue text-white px-3 py-1 rounded"
               >
                 {copied ? "Copied" : "Copy"}
               </button>

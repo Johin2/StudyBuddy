@@ -29,9 +29,12 @@ export async function GET(request) {
   }
 
   try {
-    // Query all summary documents for the user, sorted by createdAt descending.
-    const docs = await Summarizer.find({ userId }).sort({ createdAt: -1 });
-    
+    // Query all summary documents for the user that are not deleted, sorted by createdAt descending.
+    const docs = await Summarizer.find({
+      userId,
+      isDeleted: { $ne: true } // filter out deleted documents
+    }).sort({ createdAt: -1 });
+
     // Map each document to include a `summary` field for the frontend.
     const history = docs.map(doc => ({
       id: doc._id,

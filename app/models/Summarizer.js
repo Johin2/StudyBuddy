@@ -22,9 +22,13 @@ const summarizerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  freeDailySummariesLeft: {  // New field to store the free daily summaries left.
+  freeDailySummariesLeft: {  // Stores the free daily summaries left
     type: Number,
     required: true,
+  },
+  isDeleted: {  // New field to mark a summary as deleted
+    type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,
