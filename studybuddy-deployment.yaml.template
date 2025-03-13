@@ -29,15 +29,6 @@ spec:
         - name: MONGO_URL
           value: "mongodb://mongodb-service:27017/studybuddy"
         - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: secrets
-              key: JWT_SECRET
-        - name: JWT_REFRESH_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: secrets
-              key: JWT_REFRESH_SECRET
         - name: GEMINI_API_KEY
           valueFrom:
             secretKeyRef:
@@ -48,6 +39,16 @@ spec:
             secretKeyRef:
               name: secrets
               key: MISTRAL_API_KEY
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: JWT_SECRET
+        - name: JWT_REFRESH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: JWT_REFRESH_SECRET
 ---
 apiVersion: v1
 kind: Service
