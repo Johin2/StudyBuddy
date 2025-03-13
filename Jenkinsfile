@@ -52,41 +52,39 @@ pipeline {
         }
       }
     }
-    
+        
     stage('Deploy to Kubernetes') {
-      steps {
+    steps {
         sh '''
-          export KUBECONFIG=/var/lib/jenkins/.kube/config
-          
-          # Set context to minikube
-          kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --insecure-skip-tls-verify=true
-          kubectl config use-context minikube
-          
-          # Create or update the secret dynamically using Jenkins credentials.
-          # If you prefer to use environment variables directly in your deployment YAML, 
-          # you can remove this secret creation step.
-          cat <<EOF | kubectl apply -f -
-          apiVersion: v1
-          kind: Secret
-          metadata:
+        export KUBECONFIG=/var/lib/jenkins/.kube/config
+
+        # Set context to minikube
+        kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --insecure-skip-tls-verify=true
+        kubectl config use-context minikube
+
+        # Create or update the secret dynamically using Jenkins credentials.
+        cat <<EOF | kubectl apply --validate=false -f -
+        apiVersion: v1
+        kind: Secret
+        metadata:
             name: secrets
-          type: Opaque
-          data:
+        type: Opaque
+        data:
             GEMINI_API_KEY: $(echo -n "$GEMINI_API_KEY" | base64)
             MISTRAL_API_KEY: $(echo -n "$MISTRAL_API_KEY" | base64)
             JWT_SECRET: $(echo -n "$JWT_SECRET" | base64)
             JWT_REFRESH_SECRET: $(echo -n "$JWT_REFRESH_SECRET" | base64)
-          EOF
-          
-          # Apply the MongoDB deployment (ensure mongodeployment.yaml is correct).
-          kubectl apply -f mongodeployment.yaml
-          
-          # Update the studybuddy deployment image and restart rollout.
-          kubectl set image deployment/studybuddy studybuddy=$DOCKER_IMAGE:latest
-          kubectl rollout restart deployment studybuddy
-          kubectl rollout status deployment/studybuddy
+        EOF
+
+        # Apply the MongoDB deployment.
+        kubectl apply --validate=false -f mongodeployment.yaml
+
+        # Update the deployment image and restart rollout.
+        kubectl set image deployment/studybuddy studybuddy=$DOCKER_IMAGE:latest
+        kubectl rollout restart deployment studybuddy
+        kubectl rollout status deployment/studybuddy
         '''
-      }
+    }
     }
   }
   
