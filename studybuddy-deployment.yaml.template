@@ -39,9 +39,15 @@ spec:
               name: secrets
               key: JWT_REFRESH_SECRET
         - name: GEMINI_API_KEY
-          value: "${GEMINI_API_KEY}"
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: GEMINI_API_KEY
         - name: MISTRAL_API_KEY
-          value: "${MISTRAL_API_KEY}"
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: MISTRAL_API_KEY
 ---
 apiVersion: v1
 kind: Service
