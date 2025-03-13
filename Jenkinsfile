@@ -1,12 +1,10 @@
 pipeline {
   agent any
   environment {
-    // Credentials for your API keys (stored in Jenkins credentials store)
     GEMINI_API_KEY = credentials('GEMINI_API_KEY')
     MISTRAL_API_KEY = credentials('MISTRAL_API_KEY')
-    // Optionally, add other secrets if needed (e.g. JWT keys)
-    JWT_SECRET = credentials('JWT_SECRET')
-    JWT_REFRESH_SECRET = credentials('JWT_REFRESH_SECRET')
+    JWT_SECRET = credentials('jwt-secret')
+    JWT_REFRESH_SECRET = credentials('jwt-refresh-secret')
     
     // Docker image name
     DOCKER_IMAGE = "johin714/studybuddy"
