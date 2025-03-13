@@ -29,13 +29,19 @@ spec:
         - name: MONGO_URL
           value: "mongodb://mongodb-service:27017/studybuddy"
         - name: JWT_SECRET
-          value: "${JWT_SECRET}"         # Injected via Jenkins environment
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: JWT_SECRET
         - name: JWT_REFRESH_SECRET
-          value: "${JWT_REFRESH_SECRET}" # Injected via Jenkins environment
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: JWT_REFRESH_SECRET
         - name: GEMINI_API_KEY
-          value: "${GEMINI_API_KEY}"     # Injected via Jenkins environment
+          value: "${GEMINI_API_KEY}"
         - name: MISTRAL_API_KEY
-          value: "${MISTRAL_API_KEY}"    # Injected via Jenkins environment
+          value: "${MISTRAL_API_KEY}"
 ---
 apiVersion: v1
 kind: Service
