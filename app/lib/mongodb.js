@@ -22,7 +22,7 @@ export async function connectDB() {
       bufferCommands: false,
       serverSelectionTimeoutMS: 5000, // Adjust based on your needs
     };
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => mongoose);
+    cached.promise = mongoose.connect(MONGO_URL, opts).then((mongoose) => mongoose);
   }
 
   cached.conn = await cached.promise;
