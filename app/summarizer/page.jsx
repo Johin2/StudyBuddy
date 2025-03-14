@@ -189,6 +189,7 @@ const SummarizerPage = () => {
           <InputBar
             width="w-full"
             apiEndpoint="/api/summarize"
+            placeholderText={"Enter text manually or upload a document (Maximum file size: 4.5 MB)"}
             onSummaryGenerated={handleSummaryGenerated}
             onSummaryError={handleSummaryError}
             onSendStarted={() => {
