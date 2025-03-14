@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 
-const InputBar = ({ width, apiEndpoint, onSummaryGenerated, onSummaryError, onSendStarted }) => {
+const InputBar = ({ width, apiEndpoint, onSummaryGenerated, onSummaryError, onSendStarted, placeholderText }) => {
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
   const [fileContent, setFileContent] = useState("");
@@ -133,7 +133,7 @@ const InputBar = ({ width, apiEndpoint, onSummaryGenerated, onSummaryError, onSe
         <input
           type="text"
           className='flex-1 p-2 mx-2 border-none focus:ring-0 outline-none text-gray-700 placeholder-gray-700'
-          placeholder="Type or paste text here..."
+          placeholder="Enter text manually or upload a document (Maximum file size: 4.5 MB)"
           value={text}
           onChange={handleTextChange}
           onPaste={handlePaste}

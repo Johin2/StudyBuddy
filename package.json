@@ -16,6 +16,8 @@
     "@langchain/langgraph": "^0.2.46",
     "@langchain/mistralai": "^0.2.0",
     "@langchain/mongodb": "^0.1.0",
+    "@upstash/qstash": "^2.7.22",
+    "@upstash/redis": "^1.34.5",
     "@vercel/analytics": "^1.5.0",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
@@ -42,7 +44,8 @@
     "styled-jsx": "^5.1.6",
     "swiper": "^11.2.5",
     "swiper-react": "^1.0.0",
-    "tailwind-scrollbar-hide": "^2.0.0"
+    "tailwind-scrollbar-hide": "^2.0.0",
+    "upstash": "^0.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
