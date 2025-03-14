@@ -239,7 +239,7 @@ export default function FlashcardsPage() {
       {/* Bottom InputBar */}
       <div className="w-full mb-2 flex justify-center items-center">
         <div className="w-[65%]">
-          <InputBar className="w-[65%]" />
+          <InputBar className="w-[65%]" placeholderText={"Type or paste text here..."}/>
         </div>
       </div>
     </div>

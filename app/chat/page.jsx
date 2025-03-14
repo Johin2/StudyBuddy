@@ -196,7 +196,7 @@ const Page = () => {
 
       {/* ✅ Input Bar at the Bottom */}
       <div className="fixed bottom-12 w-full flex justify-center">
-        <InputBar width={'w-[65%]'}/>
+        <InputBar width={'w-[65%]'} placeholderText={"Type or paste text here..."}/>
       </div>
     </>
   )
