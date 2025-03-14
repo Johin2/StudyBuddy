@@ -184,14 +184,14 @@ const SummarizerPage = () => {
         {/* Input Section */}
         <div className="border-2 w-full col-span-1 row-span-1 mt-6 border-gray-400 rounded-lg p-6 bg-white shadow-md overflow-hidden">
           <h2 className="text-2xl lg:mb-6 font-semibold flex items-center gap-2 text-gray-800">
-            <FiFileText className="text-midBlue flex-shrink-0" />
+            <FiFileText className="text-midBlue flex-shrink-0 font-semibold" />
             Upload Text, PDF, or DOCX
           </h2>
           <div className="w-full max-w-full overflow-hidden pb-12">
             <InputBar
               width="w-full"
               apiEndpoint="/api/summarize"
-              placeholderText={"Enter text manually or upload a document (Maximum file size: 4.5 MB)"}
+              placeholderText={"Enter text manually or upload a document (Max. size: 4.5 MB)"}
               onSummaryGenerated={handleSummaryGenerated}
               onSummaryError={handleSummaryError}
               onSendStarted={() => {
