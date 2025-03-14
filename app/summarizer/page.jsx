@@ -187,7 +187,7 @@ const SummarizerPage = () => {
             <FiFileText className="text-midBlue flex-shrink-0" />
             Upload Text, PDF, or DOCX
           </h2>
-          <div className="w-full max-w-full overflow-hidden">
+          <div className="w-full max-w-full overflow-hidden pb-12">
             <InputBar
               width="w-full"
               apiEndpoint="/api/summarize"
