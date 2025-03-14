@@ -182,7 +182,7 @@ const SummarizerPage = () => {
 
       <div className="grid grid-cols-2 grid-rows-3 w-full h-full p-12 gap-12">
         {/* Input Section */}
-        <div className="border-2 w-full col-span-1 row-span-1 mt-6 border-gray-400 rounded-lg p-6 bg-white shadow-md overflow-hidden">
+        <div className="border-2 w-full col-span-1 row-span-1 mt-6 border-gray-400 rounded-lg pt-6 pl-6 justify-center items-center bg-white shadow-md overflow-hidden">
           <h2 className="text-2xl mb-12 font-semibold flex items-center gap-2 text-gray-800">
             <FiFileText className="text-midBlue flex-shrink-0" />
             Upload Text, PDF, or DOCX
