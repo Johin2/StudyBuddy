@@ -191,7 +191,10 @@ const SummarizerPage = () => {
             apiEndpoint="/api/summarize"
             onSummaryGenerated={handleSummaryGenerated}
             onSummaryError={handleSummaryError}
-            onSendStarted={() => setLoading(true)}
+            onSendStarted={() => {
+              setLoading(true); 
+              setErrorMessage("")
+            }}
           />
         </div>
 

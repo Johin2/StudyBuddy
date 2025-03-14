@@ -115,7 +115,7 @@ export async function POST(request) {
       // Initialize the Google Generative AI model.
       const gemini_api_key = process.env.GEMINI_API_KEY;
       const genAI = new GoogleGenerativeAI(gemini_api_key);
-      const genModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const genModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       const prompt = `
         Summarize the following content for me directly. Make sure the first letter is always capital.
         Keep the output properly formatted.
