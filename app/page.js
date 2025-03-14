@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Hero from "./components/Hero";
 import { useAuth } from "./Context/AuthContext";
 import AuthModal from "./components/Modal";
-import Navbar from "./components/Navbar";
+import { Analytics } from "@vercel/analytics/react"
 
 export default function Home() {
   const { user, login, logout } = useAuth();
@@ -17,6 +17,7 @@ export default function Home() {
       
       <main className="flex flex-grow items-center justify-center">
           <Hero login={openModal} isUser={user} />
+          <Analytics/>
       </main>
 
       <AuthModal isOpen={modalOpen} onClose={closeModal} />
