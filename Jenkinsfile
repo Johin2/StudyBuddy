@@ -54,13 +54,13 @@ pipeline {
     }
         
     stage('Deploy to Kubernetes') {
-    steps {
+      steps {
         sh '''
-        export KUBECONFIG=/var/lib/jenkins/.kube/config
+        # Set the KUBECONFIG environment variable to point to your k3s config file
+        export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
-        # Set context to minikube
-        kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --insecure-skip-tls-verify=true
-        kubectl config use-context minikube
+        # (Optional) Verify the current context
+        kubectl config current-context
 
         # Create or update the secret dynamically using Jenkins credentials.
         cat <<EOF | kubectl apply --validate=false -f -
@@ -82,9 +82,9 @@ pipeline {
         # Update the deployment image and restart rollout.
         kubectl set image deployment/studybuddy studybuddy=$DOCKER_IMAGE:latest
         kubectl rollout restart deployment studybuddy
-        kubectl rollout status deployment/studybuddy
+        kubectl rollout status deployment studybuddy
         '''
-    }
+      }
     }
   }
   
