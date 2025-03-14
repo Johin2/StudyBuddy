@@ -88,7 +88,7 @@ const Page = () => {
     <>
       {/* ✅ Navbar */}
       <div className="w-full fixed top-0 z-50">
-        <Navbar hidden={'hidden'} className="pt-5" />
+        <Navbar hidden={'hidden'} className="pt-8" />
       </div>
 
       {/* ✅ Sidebar + Main Content Wrapper */}

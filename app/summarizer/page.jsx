@@ -183,7 +183,7 @@ const SummarizerPage = () => {
       <div className="grid grid-cols-2 grid-rows-3 w-full h-full p-12 gap-12">
         {/* Input Section */}
         <div className="border-2 w-full col-span-1 row-span-1 mt-6 border-gray-400 rounded-lg p-6 bg-white shadow-md">
-          <h2 className="text-2xl mb-6 font-semibold flex items-center gap-2 text-gray-800">
+          <h2 className="text-2xl mb-12 font-semibold flex items-center gap-2 text-gray-800">
             <FiFileText className="text-midBlue" /> Upload Text, PDF, or DOCX
           </h2>
           <InputBar
@@ -193,7 +193,7 @@ const SummarizerPage = () => {
             onSummaryGenerated={handleSummaryGenerated}
             onSummaryError={handleSummaryError}
             onSendStarted={() => {
-              setLoading(true); 
+              setLoading(true);
               setErrorMessage("")
             }}
           />
@@ -246,17 +246,18 @@ const SummarizerPage = () => {
         </div>
 
         {/* History Section */}
-        <div className="flex flex-col border-2 border-gray-400 col-span-1 row-span-2 rounded-lg bg-white shadow-md">
-          <div className="flex">
-            <h1 className="text-white rounded-tl-lg text-center w-1/2 bg-gray-700 font-semibold h-12 flex items-center justify-center">
+        <div className="flex flex-col border-2 border-gray-400 col-span-1 row-span-2 rounded-lg bg-white shadow-md overflow-hidden">
+          <div className="flex flex-shrink-0 m-0 p-0">
+            <h1 className="text-white rounded-tl-lg text-center w-1/2 bg-gray-700 font-medium h-12 flex items-center justify-center m-0">
               History
             </h1>
-            <h1 className="text-white rounded-tr-lg text-center w-1/2 bg-gray-700 font-semibold h-12 flex items-center justify-center">
+            <h1 className="text-white rounded-tr-lg text-center w-1/2 bg-gray-700 font-medium h-12 flex items-center justify-center m-0">
               Key Points
             </h1>
           </div>
-          <div className="flex flex-row h-[91%]">
-            <div className="w-1/2 h-full overflow-y-auto p-2 custom-scrollbar border-gray-300">
+
+          <div className="flex flex-row flex-grow overflow-hidden">
+            <div className="w-1/2 h-full overflow-y-auto p-2 custom-scrollbar border-r border-gray-300">
               {history.length > 0 ? (
                 history.map((item, index) => (
                   <div key={index} className="flex items-center justify-between border-b py-2 hover:bg-gray-200">
@@ -278,8 +279,8 @@ const SummarizerPage = () => {
                 <p className="text-gray-500">No history available</p>
               )}
             </div>
-            <div className="border border-1 h-full border-black"></div>
-            <div className="w-1/2 h-[80%] overflow-y-auto p-3">
+
+            <div className="w-1/2 h-full overflow-y-auto p-3">
               {((selectedHistoryIndex !== null && history[selectedHistoryIndex]?.keyPoints?.length > 0) ||
                 (selectedHistoryIndex === null && history.length > 0)) ? (
                 <ul className="list-disc pl-4">
@@ -299,6 +300,8 @@ const SummarizerPage = () => {
             </div>
           </div>
         </div>
+
+
       </div>
 
       {/* Purchase Modal */}

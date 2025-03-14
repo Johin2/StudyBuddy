@@ -14,6 +14,8 @@ const Hero = ({ isUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,15 +50,15 @@ const Hero = ({ isUser }) => {
   return isUser ? (
     <div className="flex w-full h-screen pt-[64px]">
       <div className='flex flex-col justify-center'>
-        <Navbar className={'text-white'}/>
+        <Navbar className={'text-white'} />
         <div className='grid grid-cols-4 grid-rows-2 gap-10 h-full w-full p-12'>
           <div className='col-span-2 row-span-3 flex flex-col justify-center gap-6'>
-          <img src="/images/home-bg.svg" alt="backdrop" className='absolute inset-0 -z-10 w-full h-full object-cover'/>
+            <img src="/images/home-bg.svg" alt="backdrop" className='absolute inset-0 -z-10 w-full h-full object-cover' />
             <h1 className='text-4xl font-bold text-gray-400'>
               Study Smarter with <span className='text-midBlue'>StudyBuddy</span>
             </h1>
             <p className='text-gray-100 text-lg'>
-            Your ultimate study companion, Organize notes, generate summaries, create flashcards, and use AI to efficiently learn new topics
+              Your ultimate study companion, Organize notes, generate summaries, create flashcards, and use AI to efficiently learn new topics
             </p>
             <button className='bg-marsOrange text-white px-6 py-3 rounded-lg shadow-md hover:bg-amber-600 transition' onClick={() => handleFlashCards()}>
               Get Started
@@ -80,7 +82,7 @@ const Hero = ({ isUser }) => {
           <div className='flex flex-col space-y-3 justify-center items-center rounded-md border border-1'>
             <span className='text-7xl'>🤖</span>
             <h2 className='text-xl font-semibold mt-2 text-white'>StudyGPT</h2>
-            <p className='text-gray-300 text-center text-md'> Chat with an AI-powered assistant for instant study help.</p> 
+            <p className='text-gray-300 text-center text-md'> Chat with an AI-powered assistant for instant study help.</p>
           </div>
         </div>
       </div>
@@ -88,93 +90,76 @@ const Hero = ({ isUser }) => {
   ) : (
     <div className="flex h-screen w-screen">
       <div className="w-[50%] h-full overflow-hidden rounded-md">
-      <h1 className="text-2xl fixed top-0 left-0 p-4 text-white font-bold ml-4 cursor-pointer">
-        StudyBuddy
-      </h1>
+        <h1 className="text-2xl fixed top-0 left-0 pl-4 font-bold text-white">StudyBuddy</h1>
         <img
           src="/images/login-signup.png"
           alt="cover-image"
           className="object-cover object-center w-full h-full p-2"
         />
       </div>
-
       <div className="w-[50%] h-full flex justify-center items-center flex-col">
-        <div className="flex-col space-y-12 justify-center items-center">
-          <div className="flex h-12 rounded-lg border-[2px] border-black">
-            <div
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-6 justify-center items-center w-[80%]">
+          <div className="flex h-12 rounded-lg border-[2px] border-black mb-4 w-full">
+            <button
+              type="button"
               onClick={() => setIsSignup(true)}
-              className={`flex-1 flex justify-center items-center cursor-pointer rounded-md ${isSignup
-                ? 'bg-midBlue text-white font-semibold'
-                : 'bg-gray-100'
-                }`}
-            >
-              <h1>Signup</h1>
-            </div>
-            <div
+              className={`flex-1 rounded-md ${isSignup ? 'bg-midBlue text-white' : 'bg-gray-100'}`}
+            > Signup </button>
+            <button
+              type="button"
               onClick={() => setIsSignup(false)}
-              className={`flex-1 flex justify-center items-center cursor-pointer rounded-md ${!isSignup
-                ? 'bg-marsOrange text-white font-semibold'
-                : 'bg-gray-100'
-                }`}
+              className={`flex-1 rounded-md ${!isSignup ? 'bg-marsOrange text-white' : 'bg-gray-100'}`}
             >
-              <h1>Login</h1>
-            </div>
+              Login
+            </button>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col justify-center items-center space-y-10 w-full max-w-md"
+          {isSignup && (
+            <div className="flex gap-2 w-full">
+              <input
+                type="text"
+                placeholder="First name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="p-2 border-2 border-black rounded-md w-full"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="p-2 border-2 border-black rounded-md w-full"
+              />
+            </div>
+          )}
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="p-2 border-2 border-black rounded-md w-full"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="p-2 border-2 border-black rounded-md w-full"
+          />
+
+          {message && <p className="text-center text-red-500">{message}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full p-3 rounded-md text-white ${isSignup ? 'bg-midBlue' : 'bg-marsOrange'} hover:opacity-80 flex justify-center items-center gap-2`}
           >
-            {isSignup && (
-              <div className="flex space-x-6 w-full">
-                <input
-                  type="text"
-                  placeholder="First name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="p-2 border-2 border-black w-full rounded-md"
-                />
-                <input
-                  type="text"
-                  placeholder="Last name"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="p-2 border-2 border-black w-full rounded-md"
-                />
-              </div>
-            )}
-            <div className="w-full">
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="p-2 border-2 border-black w-full rounded-md"
-              />
-            </div>
-            <div className="w-full">
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="p-2 border-2 border-black w-full rounded-md"
-              />
-            </div>
-            <div className="w-full">
-              <button
-                type="submit"
-                className={`w-full p-3 rounded-md ${isSignup
-                  ? 'bg-midBlue hover:bg-blue-400'
-                  : 'bg-marsOrange hover:bg-orange-600'
-                  } text-white`}
-              >
-                Submit
-              </button>
-            </div>
-            {message && <p className="text-black text-md">{message}</p>}
-          </form>
-        </div>
+            {loading ? <FiLoader className="animate-spin" /> : (isSignup ? 'Sign Up' : 'Log In')}
+          </button>
+        </form>
       </div>
     </div>
   );

@@ -120,7 +120,7 @@ export default function FlashcardsPage() {
       />
 
       {/* Navbar */}
-      <Navbar hidden="hidden" className="p-6 z-50 text-white" />
+      <Navbar hidden="hidden" className="pt-8 z-50 text-white" />
 
       {/* Main Layout */}
       <div className="flex flex-grow relative h-full">
