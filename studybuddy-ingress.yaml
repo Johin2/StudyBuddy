@@ -11,7 +11,7 @@ spec:
     - thestudybuddy.site
     secretName: studybuddy-tls
   rules:
-  - host: your-domain.com
+  - host: thestudybuddy.site
     http:
       paths:
       - path: /
