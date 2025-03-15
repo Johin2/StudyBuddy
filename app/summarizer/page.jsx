@@ -86,7 +86,33 @@ const SummarizerPage = () => {
     setLoading(false);
   }, [history]);
 
-  const capitalizeFirstLetter = (text) => text ? text.charAt(0).toUpperCase() + text.slice(1) : '';
+  // Updated delete handler calls DELETE API endpoint
+  const handleDeleteSummary = useCallback(async (index) => {
+    const summaryToDelete = history[index];
+    if (!summaryToDelete) return;
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+    try {
+      const res = await fetch(`/api/summarize?id=${summaryToDelete.id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setHistory(prevHistory => prevHistory.filter((_, i) => i !== index));
+        if (selectedHistoryIndex === index) {
+          setSelectedHistoryIndex(null);
+          setCurrentSummary('');
+        }
+      } else {
+        console.error("Failed to delete summary from server");
+      }
+    } catch (error) {
+      console.error("Error deleting summary:", error);
+    }
+  }, [history, selectedHistoryIndex]);
+
+  const capitalizeFirstLetter = (text) =>
+    text ? text.charAt(0).toUpperCase() + text.slice(1) : '';
 
   const getSummaryPreview = (historyItem) => {
     return historyItem.historyPreview ||
@@ -274,9 +300,7 @@ const SummarizerPage = () => {
                       </p>
                       <button
                         className="text-red-500 ml-2"
-                        onClick={() => {
-                          // Implement delete summary functionality here
-                        }}
+                        onClick={() => handleDeleteSummary(index)}
                       >
                         <FiX />
                       </button>
