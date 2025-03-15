@@ -1,5 +1,5 @@
-"use client";
-import React, { useState } from "react";
+'use client';
+import React, { useState, useCallback, useRef } from "react";
 import Navbar from "../components/Navbar";
 import InputBar from "../components/InputBar";
 import ThreeDCarousel from "../components/ThreeDCarousel";
@@ -42,10 +42,7 @@ const sampleHistory = [
   }
 ];
 
-// Start counting new flashcards from ID 10
-let flashcardIdCounter = 10;
-
-export default function FlashcardsPage() {
+const FlashcardsPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [flashcardHistory, setFlashcardHistory] = useState(sampleHistory);
   const [renamingId, setRenamingId] = useState(null);
@@ -53,65 +50,68 @@ export default function FlashcardsPage() {
   const [selectedSession, setSelectedSession] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
 
-  // Toggle sidebar open/close
-  const toggleSidebar = () => {
+  // Use a ref for the flashcard ID counter so it persists across renders.
+  const flashcardIdCounter = useRef(14);
+
+  const toggleSidebar = useCallback(() => {
     setSidebarOpen((prev) => !prev);
-  };
+  }, []);
 
-  // Delete a history item
-  const deleteHistoryItem = (id) => {
-    setFlashcardHistory((prevHistory) =>
-      prevHistory.filter((item) => item.id !== id)
-    );
-    if (selectedSession?.id === id) {
-      setSelectedSession(null);
-      setFlashcards([]);
-    }
-  };
+  const deleteHistoryItem = useCallback(
+    (id) => {
+      setFlashcardHistory((prevHistory) =>
+        prevHistory.filter((item) => item.id !== id)
+      );
+      if (selectedSession?.id === id) {
+        setSelectedSession(null);
+        setFlashcards([]);
+      }
+    },
+    [selectedSession]
+  );
 
-  // Enable rename mode
-  const enableRename = (id, currentTitle) => {
+  const enableRename = useCallback((id, currentTitle) => {
     setRenamingId(id);
     setNewTitle(currentTitle);
-  };
+  }, []);
 
-  // Rename a history item
-  const renameHistoryItem = (id) => {
-    if (!newTitle.trim()) return;
-    setFlashcardHistory((prevHistory) =>
-      prevHistory.map((item) =>
-        item.id === id ? { ...item, title: newTitle } : item
-      )
-    );
-    setRenamingId(null);
-  };
+  const renameHistoryItem = useCallback(
+    (id) => {
+      if (!newTitle.trim()) return;
+      setFlashcardHistory((prevHistory) =>
+        prevHistory.map((item) =>
+          item.id === id ? { ...item, title: newTitle } : item
+        )
+      );
+      setRenamingId(null);
+    },
+    [newTitle]
+  );
 
-  // Open a session and load its flashcards
-  const openSession = (session) => {
+  const openSession = useCallback((session) => {
     setSelectedSession(session);
     setFlashcards(session.flashcards || []);
-  };
+  }, []);
 
-  // Create a new session
-  const createNewSession = () => {
+  const createNewSession = useCallback(() => {
     const newSessionId = flashcardHistory.length + 1;
     const newSession = {
       id: newSessionId,
       title: `Session ${newSessionId}`,
       date: new Date().toISOString().split("T")[0],
       flashcards: [
-        { id: flashcardIdCounter++, content: "New Flashcard 1" },
-        { id: flashcardIdCounter++, content: "New Flashcard 2" },
-        { id: flashcardIdCounter++, content: "New Flashcard 3" },
+        { id: flashcardIdCounter.current++, content: "New Flashcard 1" },
+        { id: flashcardIdCounter.current++, content: "New Flashcard 2" },
+        { id: flashcardIdCounter.current++, content: "New Flashcard 3" },
       ]
     };
 
-    setFlashcardHistory([...flashcardHistory, newSession]);
+    setFlashcardHistory((prev) => [...prev, newSession]);
     openSession(newSession);
-  };
+  }, [flashcardHistory, openSession]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative">
       {/* Background */}
       <img
         src="/images/home-bg.svg"
@@ -129,7 +129,7 @@ export default function FlashcardsPage() {
           src="/images/sidebar.svg"
           alt="sidebar"
           onClick={toggleSidebar}
-          className="w-9 h-9 absolute invert top-8 left-4 cursor-pointer transition-all duration-300"
+          className="w-9 h-9 absolute invert top-8 left-4 cursor-pointer transition-all duration-300 z-20"
         />
 
         {/* Sidebar */}
@@ -166,22 +166,22 @@ export default function FlashcardsPage() {
               {/* List of Previous Flashcard Sessions */}
               <ul>
                 {flashcardHistory.length > 0 ? (
-                  flashcardHistory.map((chat) => (
+                  flashcardHistory.map((session) => (
                     <li
-                      key={chat.id}
+                      key={session.id}
                       className={`p-2 flex justify-between items-center hover:bg-gray-700 rounded-md mb-2 cursor-pointer ${
-                        selectedSession?.id === chat.id ? "bg-gray-600" : ""
+                        selectedSession?.id === session.id ? "bg-gray-600" : ""
                       }`}
-                      onClick={() => openSession(chat)}
+                      onClick={() => openSession(session)}
                     >
-                      {renamingId === chat.id ? (
+                      {renamingId === session.id ? (
                         <input
                           type="text"
                           value={newTitle}
                           onChange={(e) => setNewTitle(e.target.value)}
-                          onBlur={() => renameHistoryItem(chat.id)}
+                          onBlur={() => renameHistoryItem(session.id)}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") renameHistoryItem(chat.id);
+                            if (e.key === "Enter") renameHistoryItem(session.id);
                           }}
                           className="bg-gray-800 text-white border-none outline-none p-1 rounded-md w-[80%]"
                           autoFocus
@@ -190,11 +190,11 @@ export default function FlashcardsPage() {
                         <span
                           onDoubleClick={(e) => {
                             e.stopPropagation();
-                            enableRename(chat.id, chat.title);
+                            enableRename(session.id, session.title);
                           }}
                           className="cursor-pointer"
                         >
-                          {chat.title}
+                          {session.title}
                         </span>
                       )}
 
@@ -203,7 +203,7 @@ export default function FlashcardsPage() {
                         className="ml-2 transition-all duration-300 hover:text-red-500"
                         onClick={(e) => {
                           e.stopPropagation();
-                          deleteHistoryItem(chat.id);
+                          deleteHistoryItem(session.id);
                         }}
                       >
                         <img
@@ -239,9 +239,14 @@ export default function FlashcardsPage() {
       {/* Bottom InputBar */}
       <div className="w-full mb-2 flex justify-center items-center">
         <div className="w-[65%]">
-          <InputBar className="w-[65%]" placeholderText={"Type or paste text here..."}/>
+          <InputBar
+            className="w-[65%]"
+            placeholderText="Type or paste text here..."
+          />
         </div>
       </div>
     </div>
   );
 }
+
+export default FlashcardsPage;

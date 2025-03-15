@@ -1,65 +1,65 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '../Context/AuthContext'
+import React, { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../Context/AuthContext';
+import axios from 'axios';
 
-const AuthModal = ({ isOpen, onClose }) => {
-  const router = useRouter()
-  const { login } = useAuth() // Use the context's login
-  const [isLogin, setIsLogin] = useState(true)
+const AuthModal = React.memo(({ isOpen, onClose }) => {
+  const router = useRouter();
+  const { login } = useAuth();
+  
+  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    firstName: '', 
+    firstName: '',
     lastName: '',
     email: '',
     password: '',
-  })
-  const [success, setSuccess] = useState('')
-  const [error, setError] = useState('')
+  });
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    if (isLogin) {
-      // Use AuthContext's login function
-      try {
-        await login({
-          email: formData.email,
-          password: formData.password,
-        })
-        setSuccess("Logged in successfully")
-        setError('')
-        onClose()
-        router.push('/dashboard')
-      } catch (err) {
-        setError(err.message)
-        setSuccess('')
-      }
-    } else {
-      // Signup logic (you might want to implement a similar context function for signup)
-      try {
-        const response = await axios.post('/api/signup', formData)
-        if (response.status === 201) {
-          setSuccess(response.data.message)
-          setError('')
-          onClose()
-          router.push('/dashboard')
-        } else {
-          setError(response.data.error)
-          setSuccess('')
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      if (isLogin) {
+        try {
+          await login({ email: formData.email, password: formData.password });
+          setSuccess('Logged in successfully');
+          setError('');
+          onClose();
+          router.push('/dashboard');
+        } catch (err) {
+          setError(err.message);
+          setSuccess('');
         }
-      } catch (err) {
-        setError(err.response?.data?.error || err.message)
-        setSuccess('')
+      } else {
+        try {
+          const response = await axios.post('/api/signup', formData);
+          if (response.status === 201) {
+            setSuccess(response.data.message);
+            setError('');
+            onClose();
+            router.push('/dashboard');
+          } else {
+            setError(response.data.error);
+            setSuccess('');
+          }
+        } catch (err) {
+          setError(err.response?.data?.error || err.message);
+          setSuccess('');
+        }
       }
-    }
-  }
+    },
+    [isLogin, formData, login, onClose, router]
+  );
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -140,7 +140,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+});
 
-export default AuthModal
+export default AuthModal;

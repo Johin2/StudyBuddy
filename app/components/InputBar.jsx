@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { FiFileText, FiX } from 'react-icons/fi';
 
 const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabled }) => {
@@ -8,65 +8,67 @@ const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabl
   const [dragging, setDragging] = useState(false);
   const textareaRef = useRef(null);
 
-  const handleFileUpload = (uploadedFile) => {
+  const handleFileUpload = useCallback((uploadedFile) => {
     if (!uploadedFile) return;
     setFile(uploadedFile);
-  };
+  }, []);
 
-  const handleFileInputChange = (event) => {
+  const handleFileInputChange = useCallback((event) => {
     handleFileUpload(event.target.files[0]);
-  };
+  }, [handleFileUpload]);
 
-  const handleDragOver = (event) => {
+  const handleDragOver = useCallback((event) => {
     event.preventDefault();
     setDragging(true);
-  };
+  }, []);
 
-  const handleDragLeave = () => {
+  const handleDragLeave = useCallback(() => {
     setDragging(false);
-  };
+  }, []);
 
-  const handleDrop = (event) => {
+  const handleDrop = useCallback((event) => {
     event.preventDefault();
     setDragging(false);
     const droppedFile = event.dataTransfer.files[0];
     if (droppedFile) {
       handleFileUpload(droppedFile);
     }
-  };
+  }, [handleFileUpload]);
 
-  const handleTextChange = (event) => {
+  const handleTextChange = useCallback((event) => {
     setText(event.target.value);
-  };
+  }, []);
 
   // Allow sending on Enter if Shift isn't held.
-  const handleKeyDown = (event) => {
+  const handleKeyDown = useCallback((event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       if (!disabled) handleSend();
     }
-  };
+  }, [disabled]);
 
-  const handleSend = async () => {
+  const handleSend = useCallback(async () => {
     // If there's no text and no file, do nothing.
     if (!text && !file) return;
     if (onSendStarted) onSendStarted();
 
     // Build payload: if a file exists, include it with the text.
-    const payload = file
-      ? { text, file, fileName: file.name }
-      : text;
+    const payload = file ? { text, file, fileName: file.name } : text;
 
     try {
       await onMessageSent(payload);
       // Clear both text and file after sending.
       setText("");
-      setFile(null); // This removes the file bubble from the UI.
+      setFile(null);
       textareaRef.current?.focus();
     } catch (error) {
       console.error("Error sending message:", error);
     }
-  };
+  }, [text, file, onMessageSent, onSendStarted]);
+
+  if (disabled) {
+    // Optionally, you can adjust the component's behavior when disabled
+  }
 
   return (
     <div
@@ -109,7 +111,7 @@ const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabl
           onClick={handleSend}
           disabled={disabled}
           className={`p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition ${
-            disabled && "opacity-50 cursor-not-allowed"
+            disabled ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
           Send

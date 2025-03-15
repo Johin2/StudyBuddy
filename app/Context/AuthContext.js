@@ -1,8 +1,7 @@
-'use client'
-
-import { createContext, useContext, useEffect, useState } from "react";
+'use client';
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
 const AuthContext = createContext({});
 
@@ -10,33 +9,29 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const router = useRouter();
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     setUser(null);
     router.push('/');
-  };
+  }, [router]);
 
-  const refreshAccessToken = async () => {
+  const refreshAccessToken = useCallback(async () => {
     const storedRefreshToken = localStorage.getItem('refreshToken');
-
     if (!storedRefreshToken) {
-      logout(); // If there's no refresh token, logout immediately
+      logout();
       return;
     }
-
     try {
       const res = await fetch('/api/refresh', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken: storedRefreshToken })
+        body: JSON.stringify({ refreshToken: storedRefreshToken }),
       });
-
       if (!res.ok) {
         logout();
         return;
       }
-
       const data = await res.json();
       const newAccessToken = data.token;
       localStorage.setItem("accessToken", newAccessToken);
@@ -46,7 +41,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Error refreshing token: ", error);
       logout();
     }
-  };
+  }, [logout]);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -54,10 +49,9 @@ export const AuthProvider = ({ children }) => {
       const refreshToken = localStorage.getItem("refreshToken");
 
       if (!refreshToken) {
-        logout(); // Logout if the refresh token is missing
+        logout();
         return;
       }
-
       if (token) {
         try {
           const decoded = jwtDecode(token);
@@ -77,24 +71,22 @@ export const AuthProvider = ({ children }) => {
 
     checkAuth();
 
-    // Listen for changes in localStorage to log out immediately
     const handleStorageChange = (event) => {
       if (event.key === "refreshToken" && !event.newValue) {
-        logout(); // Logout when refreshToken is removed
+        logout();
       }
     };
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  }, [logout, refreshAccessToken]);
 
-  const login = async () => {
+  const login = useCallback(async () => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
       console.error("No token found in localStorage");
       return;
     }
-
     try {
       const decoded = jwtDecode(token);
       if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
@@ -108,7 +100,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Error during login in Auth context:', error);
       logout();
     }
-  };
+  }, [logout, router]);
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
