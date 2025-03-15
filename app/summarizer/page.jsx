@@ -1,16 +1,15 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import Navbar from '../components/Navbar';
 import InputBar from '../components/InputBar';
-import { FiFileText, FiList, FiDollarSign, FiX, FiLoader } from 'react-icons/fi';
+import { FiFileText, FiList, FiX, FiLoader } from 'react-icons/fi';
 
 const SummarizerPage = () => {
   const MAX_FREE_SUMMARIES = 5;
 
   const [currentSummary, setCurrentSummary] = useState('');
-  // History stored as an array of objects: { id, summary, historyPreview, keyPoints }
   const [history, setHistory] = useState([]);
-  // freeSummariesLeft is initially null so we don't flash a default value.
   const [freeSummariesLeft, setFreeSummariesLeft] = useState(null);
   const [subscription, setSubscription] = useState(false);
   const [selectedHistoryIndex, setSelectedHistoryIndex] = useState(null);
@@ -19,7 +18,6 @@ const SummarizerPage = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // On mount, fetch free daily summaries count and the user's history from the backend.
   useEffect(() => {
     fetchFreeCount();
     fetchHistory();
@@ -55,7 +53,6 @@ const SummarizerPage = () => {
       if (res.ok) {
         const data = await res.json();
         setHistory(data.history.filter(item => !item.isDeleted));
-        ;
       } else {
         console.error("Failed to fetch history");
       }
@@ -83,100 +80,99 @@ const SummarizerPage = () => {
 
   const handleHistoryClick = (index) => {
     setSelectedHistoryIndex(index);
-    // Immediately show the full summary for that history item.
     setCurrentSummary(history[index].summary);
     setLoading(false);
   };
 
-  // Helper to capitalize the first letter.
   const capitalizeFirstLetter = (text) => {
     if (!text) return '';
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
-  // Utility function: get a preview (first 5 words) from a history item.
   const getSummaryPreview = (historyItem) => {
-    return historyItem.historyPreview || historyItem.summary.split(/\s+/).slice(0, 5).join(" ") + "...";
+    return historyItem.historyPreview ||
+      historyItem.summary.split(/\s+/).slice(0, 5).join(" ") + "...";
   };
 
-  // Display the summary immediately (no streaming).
   const displaySummary = (fullSummary) => {
     setCurrentSummary(capitalizeFirstLetter(fullSummary));
     setLoading(false);
   };
 
-  // Callback when InputBar returns data from the API.
-  // Expected API response: { summary, keyPoints, historyPreview, freeDailySummariesLeft, summarizerId }
-  const handleSummaryGenerated = (data) => {
-    setErrorMessage("");
-    setSelectedHistoryIndex(null); // Clear any previously selected history.
-    // Append new summary to history.
-    setHistory(prev => [
-      ...prev,
-      {
-        id: data.summarizerId,
-        summary: data.summary,
-        historyPreview: data.historyPreview,
-        keyPoints: data.keyPoints,
-      }
-    ]);
+  // New onMessageSent handler that replaces onSummaryGenerated / onSummaryError
+  const handleSendMessage = async (payload) => {
+    if (!payload) return;
     setLoading(true);
-    displaySummary(data.summary);
-    setFreeSummariesLeft(data.freeDailySummariesLeft);
-    if (data.freeDailySummariesLeft <= 0 && !subscription) {
-      setShowPurchaseModal(true);
-    }
-  };
-
-  // Callback when InputBar returns an error.
-  const handleSummaryError = (errorResponse) => {
-    if (!errorResponse || !errorResponse.status) {
-      setErrorMessage("Failed to generate summary.");
-    } else if (errorResponse.status === 403) {
-      setFreeSummariesLeft(0);
-      setShowPurchaseModal(true);
-      setErrorMessage("Daily free summaries limit reached.");
-    } else {
-      setErrorMessage("Failed to generate summary.");
-    }
-    console.error("Summary generation error:", errorResponse);
-  };
-
-  // Delete a summary from the database and update local state by removing it from the history array.
-  const deleteSummary = async (index) => {
-    const summaryToDelete = history[index];
     const token = localStorage.getItem("accessToken");
     if (!token) {
       setErrorMessage("Access token not found. Please log in.");
+      setLoading(false);
       return;
     }
+    
     try {
-      const response = await fetch(`/api/summarize?id=${summaryToDelete.id}`, {
-        method: "DELETE",
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to delete summary");
+      let res;
+      // Check if the payload contains file information
+      if (typeof payload === "object" && payload.fileName) {
+        const formData = new FormData();
+        formData.append("text", payload.text);
+        formData.append("file", payload.file);
+        res = await fetch("/api/summarize", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${token}` },
+          body: formData,
+        });
+      } else {
+        res = await fetch("/api/summarize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ text: payload }),
+        });
       }
-      // Remove the summary from the local state.
-      const updatedHistory = history.filter((_, i) => i !== index);
-      setHistory(updatedHistory);
-      if (selectedHistoryIndex === index) {
-        setSelectedHistoryIndex(null);
-        setCurrentSummary('');
+      
+      if (!res.ok) {
+        if (res.status === 403) {
+          setFreeSummariesLeft(0);
+          setShowPurchaseModal(true);
+          setErrorMessage("Daily free summaries limit reached.");
+        } else {
+          setErrorMessage("Failed to generate summary.");
+        }
+        setLoading(false);
+        return;
       }
-      // Do NOT update free count on deletion.
+      
+      const data = await res.json();
+      
+      // Update history with the new summary
+      setHistory(prev => [
+        ...prev,
+        {
+          id: data.summarizerId,
+          summary: data.summary,
+          historyPreview: data.historyPreview,
+          keyPoints: data.keyPoints,
+        }
+      ]);
+      displaySummary(data.summary);
+      setFreeSummariesLeft(data.freeDailySummariesLeft);
+      
+      if (data.freeDailySummariesLeft <= 0 && !subscription) {
+        setShowPurchaseModal(true);
+      }
     } catch (error) {
-      setErrorMessage("There was an error deleting the summary.");
-      console.error("Error deleting summary:", error);
-      // Re-fetch history to ensure UI consistency.
-      fetchHistory();
+      console.error("Summary generation error:", error);
+      setErrorMessage("Failed to generate summary.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col w-screen h-screen relative">
-      {/* Navbar */}
       <img src="/images/home-bg.svg" alt="backdrop" className="absolute inset-0 -z-10 w-full h-full object-cover" />
       <Navbar className="text-white" />
 
@@ -190,18 +186,15 @@ const SummarizerPage = () => {
           <div className="w-full max-w-full overflow-hidden pb-12">
             <InputBar
               width="w-full"
-              apiEndpoint="/api/summarize"
-              placeholderText={"Enter text manually or upload a document (Max. size: 4.5 MB)"}
-              onSummaryGenerated={handleSummaryGenerated}
-              onSummaryError={handleSummaryError}
+              placeholderText="Enter text manually or upload a document (Max. size: 4.5 MB)"
               onSendStarted={() => {
                 setLoading(true);
                 setErrorMessage("");
               }}
+              onMessageSent={handleSendMessage}
             />
           </div>
         </div>
-
 
         {/* Summary Display Section */}
         <div className="border-2 col-span-1 row-span-3 mt-6 border-gray-400 rounded-lg p-6 bg-white shadow-md">
@@ -215,7 +208,9 @@ const SummarizerPage = () => {
                 <p className="mt-2 text-gray-500">Loading summary...</p>
               </div>
             ) : currentSummary ? (
-              <p className="text-gray-800 text-left">{currentSummary}</p>
+              <div>
+                <ReactMarkdown>{currentSummary}</ReactMarkdown>
+              </div>
             ) : (
               <p className="text-gray-500">No summary generated yet</p>
             )}
@@ -230,14 +225,12 @@ const SummarizerPage = () => {
           </div>
           <div className="mt-4 text-gray-700">
             {!subscription ? (
-              <>
-                <p className="font-semibold">
-                  Free summaries left:{" "}
-                  <span className="text-marsOrange">
-                    {freeSummariesLeft !== null ? freeSummariesLeft : <FiLoader className="animate-spin inline-block" />}
-                  </span>
-                </p>
-              </>
+              <p className="font-semibold">
+                Free summaries left:{" "}
+                <span className="text-marsOrange">
+                  {freeSummariesLeft !== null ? freeSummariesLeft : <FiLoader className="animate-spin inline-block" />}
+                </span>
+              </p>
             ) : (
               <p className="font-semibold">You have an unlimited subscription</p>
             )}
@@ -259,7 +252,6 @@ const SummarizerPage = () => {
               Key Points
             </h1>
           </div>
-
           <div className="flex flex-row flex-grow overflow-hidden">
             <div className="w-1/2 h-full overflow-y-auto p-2 custom-scrollbar border-r border-gray-300">
               {history.length > 0 ? (
@@ -283,7 +275,6 @@ const SummarizerPage = () => {
                 <p className="text-gray-500">No history available</p>
               )}
             </div>
-
             <div className="w-1/2 h-full overflow-y-auto p-3">
               {((selectedHistoryIndex !== null && history[selectedHistoryIndex]?.keyPoints?.length > 0) ||
                 (selectedHistoryIndex === null && history.length > 0)) ? (
@@ -304,8 +295,6 @@ const SummarizerPage = () => {
             </div>
           </div>
         </div>
-
-
       </div>
 
       {/* Purchase Modal */}

@@ -1,24 +1,16 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { FiFileText, FiX } from 'react-icons/fi';
 
-const InputBar = ({ width, apiEndpoint, onSummaryGenerated, onSummaryError, onSendStarted, placeholderText }) => {
+const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabled }) => {
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
-  const [fileContent, setFileContent] = useState("");
   const [dragging, setDragging] = useState(false);
+  const textareaRef = useRef(null);
 
   const handleFileUpload = (uploadedFile) => {
     if (!uploadedFile) return;
     setFile(uploadedFile);
-    setFileContent("");
-
-    if (uploadedFile.type === "text/plain") {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFileContent(e.target.result);
-      };
-      reader.readAsText(uploadedFile);
-    }
   };
 
   const handleFileInputChange = (event) => {
@@ -47,81 +39,51 @@ const InputBar = ({ width, apiEndpoint, onSummaryGenerated, onSummaryError, onSe
     setText(event.target.value);
   };
 
-  const handlePaste = (event) => {
-    const pastedText = event.clipboardData.getData("text");
-    setText(pastedText);
+  // Allow sending on Enter if Shift isn't held.
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      if (!disabled) handleSend();
+    }
   };
 
   const handleSend = async () => {
+    // If there's no text and no file, do nothing.
     if (!text && !file) return;
-
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      onSummaryError({ status: 401, message: "Access token not found. Please log in." });
-      return;
-    }
-
-    // Set loading immediately via the parent's callback.
     if (onSendStarted) onSendStarted();
 
+    // Build payload: if a file exists, include it with the text.
+    const payload = file
+      ? { text, file, fileName: file.name }
+      : text;
+
     try {
-      let response;
-      if (file) {
-        // Use multipart/form-data for file upload.
-        const formData = new FormData();
-        formData.append("file", file);
-        if (text) {
-          formData.append("text", text);
-        }
-        response = await fetch(apiEndpoint, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
-      } else {
-        // Use JSON for text-only requests.
-        response = await fetch(apiEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ text })
-        });
-      }
-      if (!response.ok) {
-        // Instead of throwing an error, pass the error to onSummaryError.
-        onSummaryError({ status: response.status, message: "Failed to generate summary" });
-        return;
-      }
-      const data = await response.json();
-      if (onSummaryGenerated) {
-        onSummaryGenerated(data);
-      }
-      // Clear inputs after successful send.
+      await onMessageSent(payload);
+      // Clear both text and file after sending.
       setText("");
-      setFile(null);
-      setFileContent("");
+      setFile(null); // This removes the file bubble from the UI.
+      textareaRef.current?.focus();
     } catch (error) {
-      onSummaryError({ status: 500, message: error.message });
+      console.error("Error sending message:", error);
     }
   };
 
   return (
     <div
-      className={`flex flex-col justify-center ${width} p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-midBlue" : "border-gray-300"}`}
+      className={`flex flex-col ${width} p-3 bg-white rounded-lg shadow-md border ${
+        dragging ? "border-blue-500" : "border-gray-300"
+      }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div className='flex items-center'>
+      <div className="flex items-center gap-2">
         <label
           htmlFor="fileUpload"
-          className='flex justify-center items-center cursor-pointer p-2 rounded-full w-10 h-10 hover:bg-gray-200 transition'
+          className="cursor-pointer p-2 rounded-full hover:bg-gray-200 transition"
+          title="Upload a file"
         >
-          <span className='text-2xl text-gray-500'>+</span>
+          <FiFileText className="text-gray-600 text-xl" />
         </label>
         <input
           id="fileUpload"
@@ -129,44 +91,52 @@ const InputBar = ({ width, apiEndpoint, onSummaryGenerated, onSummaryError, onSe
           className="hidden"
           accept=".txt, .pdf, .docx"
           onChange={handleFileInputChange}
+          disabled={disabled}
         />
-        <input
-          type="text"
-          className='flex-1 p-2 mx-2 border-none focus:ring-0 outline-none text-gray-700 placeholder-gray-700'
+
+        <textarea
+          ref={textareaRef}
+          rows={1}
+          disabled={disabled}
+          className="flex-1 p-2 border rounded resize-none focus:outline-none text-gray-700 placeholder-gray-500"
           placeholder={placeholderText}
           value={text}
           onChange={handleTextChange}
-          onPaste={handlePaste}
+          onKeyDown={handleKeyDown}
         />
+
         <button
           onClick={handleSend}
-          className='p-2 bg-midBlue text-white rounded-lg hover:bg-marsOrange transition ml-3'
+          disabled={disabled}
+          className={`p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition ${
+            disabled && "opacity-50 cursor-not-allowed"
+          }`}
         >
           Send
         </button>
       </div>
+
       {dragging && (
-        <p className='text-center text-gray-500 mt-2'>Drop your file here...</p>
+        <p className="text-center text-gray-500 mt-2">Drop your file here...</p>
       )}
+
+      {/* Render file bubble only if a file exists */}
       {file && (
-        <div className='mt-3 p-2 bg-gray-100 rounded-md'>
-          <div className='flex items-center justify-between'>
-            <p className='text-gray-700 text-sm truncate max-w-[80%]'>{file.name}</p>
-            <button
-              className='text-red-500 text-md font-bold hover:text-red-700'
-              onClick={() => {
-                setFile(null);
-                setFileContent("");
-              }}
-            >
-              x
-            </button>
+        <div className="mt-3 inline-flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
+          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-pink-200 text-pink-700">
+            <FiFileText className="text-sm" />
           </div>
-          {fileContent && (
-            <div className='mt-2 bg-white border border-gray-300 rounded-md text-sm text-gray-600 max-h-40 overflow-y-auto'>
-              <p className='whitespace-pre-line'>{fileContent}</p>
-            </div>
-          )}
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-gray-700">{file.name}</span>
+            <span className="text-xs text-gray-500">Document</span>
+          </div>
+          <button
+            onClick={() => setFile(null)}
+            className="text-gray-400 hover:text-gray-600"
+            disabled={disabled}
+          >
+            <FiX />
+          </button>
         </div>
       )}
     </div>
