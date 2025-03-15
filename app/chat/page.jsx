@@ -13,7 +13,8 @@ import {
   FiSun,
   FiMoon,
 } from 'react-icons/fi';
-
+import ErrorPopup from '../components/ErrorPopup';
+  
 // JumpingDots component for animated dots
 const JumpingDots = () => (
   <span style={{ display: 'inline-block' }}>
@@ -49,7 +50,9 @@ const ChatPage = () => {
   const [editedTitle, setEditedTitle] = useState('');
   // Dark mode state with persistence
   const [darkMode, setDarkMode] = useState(false);
-
+  // Error state for error popup
+  const [errorMessage, setErrorMessage] = useState('');
+  
   // Refs for scrollable containers and end-of-messages
   const messagesContainerRef = useRef(null);
   const messagesInnerRef = useRef(null);
@@ -147,7 +150,10 @@ const ChatPage = () => {
           method: "DELETE",
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!response.ok) return;
+        if (!response.ok) {
+          setErrorMessage("Failed to delete chat from server");
+          return;
+        }
         const updatedHistory = chatHistory.filter(
           chat => (chat._id || chat.id) !== chatId
         );
@@ -158,6 +164,7 @@ const ChatPage = () => {
         }
       } catch (error) {
         console.error("Delete chat error:", error);
+        setErrorMessage("Error deleting chat");
       }
     },
     [chatHistory, selectedChat]
@@ -181,9 +188,6 @@ const ChatPage = () => {
     setSelectedChat(chat);
   }, []);
 
-  // Ref for new chat creation (for chats persisted locally)
-  // (No need for a separate counter here as we use Date.now())
-
   // Send message handler
   const handleSendMessage = useCallback(async (payload) => {
     if (!payload) return;
@@ -191,6 +195,7 @@ const ChatPage = () => {
 
     const token = localStorage.getItem("accessToken");
     if (!token) {
+      setErrorMessage("Access token not found. Please log in.");
       setLoading(false);
       return;
     }
@@ -310,6 +315,7 @@ const ChatPage = () => {
       );
     } catch (error) {
       console.error("Fetch error:", error);
+      setErrorMessage("Error sending message.");
     } finally {
       setLoading(false);
     }
@@ -526,6 +532,11 @@ const ChatPage = () => {
           disabled={loading}
         />
       </div>
+      
+      {/* Error Popup */}
+      {errorMessage && (
+        <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
+      )}
     </div>
   );
 };

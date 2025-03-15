@@ -6,6 +6,7 @@ import InputBar from '../components/InputBar';
 import { FiFileText, FiList, FiX, FiLoader } from 'react-icons/fi';
 import Head from 'next/head';
 import Image from 'next/image';
+import ErrorPopup from '../components/Error';
 
 const MAX_FREE_SUMMARIES = 5;
 
@@ -19,7 +20,7 @@ const SummarizerPage = () => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [deletingIndex, setDeletingIndex] = useState(null); // new state for deletion spinner
+  const [deletingIndex, setDeletingIndex] = useState(null);
 
   useEffect(() => {
     fetchFreeCount();
@@ -87,13 +88,13 @@ const SummarizerPage = () => {
     setLoading(false);
   }, [history]);
 
-  // Updated delete handler calls DELETE API endpoint and shows spinner
+  // Delete summary and show spinner until deletion completes.
   const handleDeleteSummary = useCallback(async (index) => {
     const summaryToDelete = history[index];
     if (!summaryToDelete) return;
     const token = localStorage.getItem("accessToken");
     if (!token) return;
-    
+
     // Set deletion spinner state
     setDeletingIndex(index);
     
@@ -110,9 +111,11 @@ const SummarizerPage = () => {
         }
       } else {
         console.error("Failed to delete summary from server");
+        setErrorMessage("Failed to delete summary from server");
       }
     } catch (error) {
       console.error("Error deleting summary:", error);
+      setErrorMessage("Error deleting summary.");
     } finally {
       setDeletingIndex(null);
     }
@@ -207,7 +210,7 @@ const SummarizerPage = () => {
         <meta name="keywords" content="StudyBuddy, summarizer, summary, text summarization, PDF summarizer" />
       </Head>
       <div className="flex flex-col w-screen h-screen relative">
-        {/* Optimized Background Image */}
+        {/* Background Image */}
         <Image
           src="/images/home-bg.svg"
           alt="backdrop"
@@ -277,11 +280,6 @@ const SummarizerPage = () => {
                 <p className="font-semibold">You have an unlimited subscription</p>
               )}
             </div>
-            {errorMessage && (
-              <div className="mt-4 p-2 bg-red-100 text-red-700 rounded">
-                {errorMessage}
-              </div>
-            )}
           </div>
 
           {/* History Section */}
@@ -375,6 +373,11 @@ const SummarizerPage = () => {
           </div>
         )}
       </div>
+      
+      {/* Error Popup */}
+      {errorMessage && (
+        <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
+      )}
     </>
   );
 };
