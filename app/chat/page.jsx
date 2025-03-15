@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import Navbar from '../components/Navbar';
 import InputBar from '../components/InputBar';
-import { FiLoader, FiTrash, FiFileText, FiChevronDown, FiEdit } from 'react-icons/fi';
+import { FiLoader, FiTrash, FiFileText, FiChevronDown, FiEdit, FiSun, FiMoon } from 'react-icons/fi';
 
 // JumpingDots component for animated dots
 const JumpingDots = () => (
@@ -38,21 +38,36 @@ const ChatPage = () => {
   const [atBottom, setAtBottom] = useState(true);
   const [editingChatId, setEditingChatId] = useState(null);
   const [editedTitle, setEditedTitle] = useState('');
+  // Dark mode state with persistence
+  const [darkMode, setDarkMode] = useState(false);
 
+  // Refs for containers
   const messagesContainerRef = useRef(null);
+  const messagesInnerRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const handleOpen = () => setIsOpen(prev => !prev);
+  const toggleDarkMode = () => setDarkMode(prev => !prev);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Load saved dark mode, chat history, and selected chat from localStorage
   useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode) {
+      setDarkMode(savedDarkMode === 'true');
+    }
     const savedChatHistory = localStorage.getItem('chatHistory');
     const savedSelectedChat = localStorage.getItem('selectedChat');
     if (savedChatHistory) setChatHistory(JSON.parse(savedChatHistory));
     if (savedSelectedChat) setSelectedChat(JSON.parse(savedSelectedChat));
   }, []);
+
+  // Persist dark mode state
+  useEffect(() => {
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
@@ -64,27 +79,26 @@ const ChatPage = () => {
     }
   }, [selectedChat]);
 
-  // Use Intersection Observer to set atBottom state.
+  // Attach scroll listener to the inner scrollable container
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setAtBottom(entry.isIntersecting);
-      },
-      {
-        root: messagesContainerRef.current,
-        threshold: 1.0,
-      }
-    );
-    if (messagesEndRef.current) {
-      observer.observe(messagesEndRef.current);
-    }
-    return () => {
-      if (messagesEndRef.current) {
-        observer.unobserve(messagesEndRef.current);
-      }
-    };
-  }, [messagesContainerRef, messagesEndRef, selectedChat?.messages]);
+    const container = messagesInnerRef.current;
+    if (!container) return;
 
+    const handleScroll = () => {
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <= container.clientHeight + 10;
+      console.log("isAtBottom:", isAtBottom);
+      setAtBottom(isAtBottom);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    // Check initial state
+    handleScroll();
+
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [selectedChat?.messages]);
+
+  // Scroll to bottom when messages update
   useEffect(() => {
     scrollToBottom();
   }, [selectedChat?.messages]);
@@ -95,8 +109,20 @@ const ChatPage = () => {
     setSelectedChat(newChat);
   };
 
-  // Delete the chat both from UI state and MongoDB via API.
+  // Delete chat function
   const deleteChat = async (chatId) => {
+    if (!(chatId && chatId.length === 24)) {
+      const updatedHistory = chatHistory.filter(
+        chat => (chat._id || chat.id) !== chatId
+      );
+      setChatHistory(updatedHistory);
+      if ((selectedChat?._id || selectedChat?.id) === chatId) {
+        setSelectedChat(null);
+        localStorage.removeItem('selectedChat');
+      }
+      return;
+    }
+
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -111,9 +137,11 @@ const ChatPage = () => {
         alert("Failed to delete chat from server.");
         return;
       }
-      const updatedHistory = chatHistory.filter(chat => chat.id !== chatId);
+      const updatedHistory = chatHistory.filter(
+        chat => (chat._id || chat.id) !== chatId
+      );
       setChatHistory(updatedHistory);
-      if (selectedChat?.id === chatId) {
+      if ((selectedChat?._id || selectedChat?.id) === chatId) {
         setSelectedChat(null);
         localStorage.removeItem('selectedChat');
       }
@@ -123,7 +151,7 @@ const ChatPage = () => {
     }
   };
 
-  // Rename function: updates title for the given chat.
+  // Rename chat function
   const saveChatTitle = (chatId, newTitle) => {
     const updatedHistory = chatHistory.map(chat =>
       chat.id === chatId ? { ...chat, title: newTitle } : chat
@@ -135,18 +163,18 @@ const ChatPage = () => {
     localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
     setEditingChatId(null);
   };
-  
+
   const handleSendMessage = async (payload) => {
     if (!payload) return;
     setLoading(true);
-  
+
     const token = localStorage.getItem("accessToken");
     if (!token) {
       alert("Please login first.");
       setLoading(false);
       return;
     }
-  
+
     const isFilePayload = typeof payload === 'object' && payload.fileName;
     const userMessage = isFilePayload
       ? {
@@ -159,7 +187,7 @@ const ChatPage = () => {
           sender: "User",
           text: payload
         };
-  
+
     const chatTitle = userMessage.text || userMessage.fileName || "New Chat";
     const newChat = selectedChat
       ? {
@@ -175,7 +203,7 @@ const ChatPage = () => {
           title: chatTitle,
           messages: [userMessage, { sender: "Assistant", text: "..." }],
         };
-  
+
     setSelectedChat(newChat);
     setChatHistory(prevHistory => {
       const exists = prevHistory.some(chat => chat.id === newChat.id);
@@ -183,7 +211,7 @@ const ChatPage = () => {
         ? prevHistory.map(chat => (chat.id === newChat.id ? newChat : chat))
         : [newChat, ...prevHistory];
     });
-  
+
     try {
       let res;
       if (isFilePayload) {
@@ -214,12 +242,10 @@ const ChatPage = () => {
           }),
         });
       }
-  
-      // Check if the server indicates the chat no longer exists
+
       if (!res.ok) {
         const data = await res.json();
         if (res.status === 404 && data.error && data.error.toLowerCase().includes("chat not found")) {
-          // Remove the chat from the frontend if it doesn't exist on the server
           const updatedHistory = chatHistory.filter(chat => chat.id !== newChat.id);
           setChatHistory(updatedHistory);
           setSelectedChat(null);
@@ -232,8 +258,7 @@ const ChatPage = () => {
           return;
         }
       }
-  
-      // Continue processing if response is OK.
+
       const responseText = await res.text();
       let data;
       try {
@@ -241,14 +266,14 @@ const ChatPage = () => {
       } catch (err) {
         throw new Error("Invalid JSON response: " + responseText);
       }
-  
+
       if (!data || !data.aiResponse || typeof data.aiResponse !== "string") {
         console.error("Invalid AI response:", data);
         alert("Received an invalid AI response.");
         setLoading(false);
         return;
       }
-  
+
       const updatedMessages = newChat.messages.map((msg, idx) =>
         idx === newChat.messages.length - 1
           ? { sender: "Assistant", text: data.aiResponse }
@@ -270,26 +295,33 @@ const ChatPage = () => {
       setLoading(false);
     }
   };
-  
 
   return (
-    <>
+    <div className={`${darkMode ? 'dark' : ''}`}>
+      {/* Navbar with dark mode toggle */}
       <div className="w-full fixed top-0 z-50">
-        <Navbar hidden="hidden" className="pt-8 select-none" />
+        <Navbar hidden="hidden" className="pt-8 select-none dark:text-white" />
+        <button
+          onClick={toggleDarkMode}
+          className="absolute right-4 top-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800"
+          title="Toggle Dark Mode"
+        >
+          {darkMode ? <FiSun className="text-yellow-500" /> : <FiMoon className="text-blue-500" />}
+        </button>
       </div>
 
-      <div className="h-screen w-screen flex relative overflow-hidden">
+      <div className="h-screen w-screen flex relative overflow-y-auto custom-scrollbar bg-white dark:bg-gray-900 text-black dark:text-white">
         <img
           src="/images/sidebar.svg"
           alt="sidebar"
           onClick={handleOpen}
-          className={`w-9 h-9 absolute select-none top-8 left-4 z-50 cursor-pointer transition-all duration-300 ${isOpen ? "invert" : ""}`}
+          className={`w-9 h-9 absolute select-none top-8 left-4 z-50 cursor-pointer transition-all dark:invert duration-300 ${isOpen ? "invert" : ""}`}
         />
         <div
-          className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all duration-300 ${isOpen ? "w-72" : "w-0"} overflow-hidden z-10`}
+          className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all  duration-300 ${isOpen ? "w-72" : "w-0"} overflow-y-auto z-10`}
         >
           {isOpen && (
-            <div className="p-4 h-full overflow-y-auto scrollbar-hide">
+            <div className="p-4 h-full overflow-y-auto custom-scrollbar border-r border-1 border-marsOrange dark:border-lightBlue">
               <h2 className="mt-24 text-lg font-semibold m-2">History</h2>
               <button
                 className="flex items-center w-full gap-2 cursor-pointer p-2 hover:bg-gray-500 bg-gray-700 rounded-md mb-4"
@@ -305,13 +337,15 @@ const ChatPage = () => {
                   <li
                     key={chat.id}
                     className={`p-2 flex justify-between items-center rounded-md mb-2 cursor-pointer ${
-                      selectedChat?.id === chat.id ? "bg-gray-600 text-white" : "hover:bg-gray-700 text-gray-300"
+                      selectedChat?.id === chat.id
+                        ? "bg-gray-600 text-white"
+                        : "hover:bg-gray-700 text-gray-300 dark:text-gray-300"
                     }`}
                     onClick={() => setSelectedChat(chat)}
                   >
                     {editingChatId === chat.id ? (
                       <input
-                        className="bg-transparent text-white border-b border-gray-400 focus:outline-none"
+                        className="w-full box-border bg-transparent text-gray-900 dark:text-gray-100 border-b border-gray-400 dark:border-gray-600 focus:outline-none"
                         value={editedTitle}
                         onChange={(e) => setEditedTitle(e.target.value)}
                         onBlur={() => saveChatTitle(chat.id, editedTitle)}
@@ -323,7 +357,7 @@ const ChatPage = () => {
                         autoFocus
                       />
                     ) : (
-                      <span>{chat.title}</span>
+                      <span className="text-gray-900 dark:text-gray-100">{chat.title}</span>
                     )}
                     <div className="flex items-center gap-2">
                       <FiEdit
@@ -350,16 +384,20 @@ const ChatPage = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex flex-grow items-center justify-center w-full overflow-y-auto pb-12 relative" ref={messagesContainerRef}>
+        <div className="flex flex-grow items-center justify-center w-full overflow-y-auto pb-12 custom-scrollbar relative" ref={messagesContainerRef}>
           {selectedChat && selectedChat.messages.length > 0 ? (
-            <div className="w-1/2 flex flex-col space-y-4">
-              <div className="flex flex-col space-y-3 w-full max-h-[80vh] pb-12 overflow-y-auto scrollbar-hide">
+            <div className="w-full flex flex-col space-y-4 overflow-auto justify-center items-center custom-scrollbar" ref={messagesInnerRef}>
+              <div className="flex flex-col space-y-3 w-1/2 max-h-[80vh] pb-12">
                 {selectedChat.messages.map((msg, idx) => {
                   if (msg.isFile) {
                     return (
                       <div
                         key={`${msg.sender}-${idx}`}
-                        className={`p-3 rounded-lg w-fit max-w-[80%] ${msg.sender === "User" ? "ml-auto text-white bg-blue-500" : "bg-gray-200 text-black"}`}
+                        className={`p-3 rounded-lg w-fit max-w-[80%] ${
+                          msg.sender === "User"
+                            ? "ml-auto text-white bg-blue-500"
+                            : "bg-gray-200 text-black"
+                        }`}
                       >
                         {msg.text && (
                           <div className="mb-2">
@@ -375,7 +413,9 @@ const ChatPage = () => {
                             <FiFileText className="text-sm" />
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-700">{msg.fileName}</span>
+                            <span className="text-sm font-medium text-gray-700">
+                              {msg.fileName}
+                            </span>
                             <span className="text-xs text-gray-500">Document</span>
                           </div>
                         </div>
@@ -385,7 +425,11 @@ const ChatPage = () => {
                   return (
                     <div
                       key={`${msg.sender}-${idx}`}
-                      className={`p-3 rounded-lg w-fit max-w-[80%] ${msg.sender === "User" ? "ml-auto text-white bg-blue-500" : "bg-gray-200 text-black"}`}
+                      className={`p-3 rounded-lg w-fit max-w-[80%] ${
+                        msg.sender === "User"
+                          ? "ml-auto text-white bg-blue-500"
+                          : "bg-gray-200 text-black"
+                      }`}
                     >
                       {msg.sender === "Assistant" ? (
                         msg.text === "..." ? (
@@ -401,9 +445,8 @@ const ChatPage = () => {
                     </div>
                   );
                 })}
-                <div ref={messagesEndRef} />
               </div>
-              {/* Fixed down arrow button at bottom center of viewport */}
+              {/* Scroll-to-bottom button */}
               {!atBottom && (
                 <button
                   onClick={scrollToBottom}
@@ -414,10 +457,13 @@ const ChatPage = () => {
                   <FiChevronDown className="text-white" />
                 </button>
               )}
+              <div ref={messagesEndRef} />
             </div>
           ) : (
             <div className="flex items-center justify-center h-full w-full">
-              <h1 className="text-gray-600 text-4xl opacity-50 select-none font-bold">StudyBuddy</h1>
+              <h1 className="text-gray-800 dark:text-gray-200 text-4xl opacity-50 select-none font-bold">
+                StudyBuddy
+              </h1>
             </div>
           )}
         </div>
@@ -433,7 +479,7 @@ const ChatPage = () => {
           disabled={loading}
         />
       </div>
-    </>
+    </div>
   );
 };
 
