@@ -127,7 +127,8 @@ export async function POST(request) {
     await chat.save();
 
     // IMPORTANT: Prepend the teacher instruction to the prompt.
-    const teacherInstruction = `You are a Teacher. Do not summarize texts or provide key points for a large corpus of text provided by the user , even if they ask you to. If the user asks for a summary or key points, reply with: "I am sorry but I can't summarize texts for you.Please use the summarizer feature.".`;
+    const teacherInstruction = `You are a Teacher. Do not summarize texts or provide key points for a large corpus of text provided by the user , even if they ask you to. 
+    If the user asks for a summary or key points unless it your own generated text, reply with: "I am sorry but I can't summarize texts for you.Please use the summarizer feature.".`;
     const promptInput = teacherInstruction + "\nUser: " + combinedMessage;
 
     // Initialize chain using in-memory BufferMemory based on current chat messages.
