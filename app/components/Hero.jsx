@@ -15,6 +15,8 @@ const Hero = ({ isUser }) => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
 
 
   const handleSubmit = async (e) => {
@@ -38,13 +40,23 @@ const Hero = ({ isUser }) => {
         localStorage.setItem('accessToken', data.token);
         localStorage.setItem('refreshToken', data.refreshToken);
         login();
+      } else if (response.status === 201 && isSignup) {
+        setMessage('Signup successful! Please login.');
+        setIsSuccess(true)
+        setIsSignup(false);
+        setFirstName('');
+        setLastName('');
+        setEmail('');
+        setPassword('');
       } else {
-        setMessage(data.error);
+        setMessage(data.error || 'An error occurred.');
+        setIsSuccess(false)
       }
     } catch (error) {
       setMessage(error.message);
     }
   };
+
 
 
   return isUser ? (
@@ -90,7 +102,7 @@ const Hero = ({ isUser }) => {
   ) : (
     <div className="flex h-screen w-screen">
       <div className="w-[50%] h-full overflow-hidden rounded-md">
-        <h1 className="text-2xl fixed top-0 left-0 pl-4 font-bold text-white">StudyBuddy</h1>
+        <h1 className="text-2xl fixed top-0 left-0 pl-4 pt-4 font-bold text-white">StudyBuddy</h1>
         <img
           src="/images/login-signup.png"
           alt="cover-image"
@@ -150,7 +162,12 @@ const Hero = ({ isUser }) => {
             className="p-2 border-2 border-black rounded-md w-full"
           />
 
-          {message && <p className="text-center text-red-500">{message}</p>}
+          {message && (
+            <p className={`text-center ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
+              {message}
+            </p>
+          )}
+
 
           <button
             type="submit"
