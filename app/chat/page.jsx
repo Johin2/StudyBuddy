@@ -12,6 +12,7 @@ import {
   FiEdit,
   FiSun,
   FiMoon,
+  FiX,
 } from 'react-icons/fi';
 import ErrorPopup from '../components/Error';
   
@@ -57,6 +58,9 @@ const ChatPage = () => {
   const messagesContainerRef = useRef(null);
   const messagesInnerRef = useRef(null);
   const messagesEndRef = useRef(null);
+  
+  // Ref to ensure chat history is validated only once.
+  const validatedRef = useRef(false);
 
   // Toggle sidebar open/close
   const handleOpen = useCallback(() => {
@@ -99,6 +103,40 @@ const ChatPage = () => {
       localStorage.setItem('selectedChat', JSON.stringify(selectedChat));
     }
   }, [selectedChat]);
+
+  // Validate chat history from the server and remove unavailable chats
+  useEffect(() => {
+    if (!validatedRef.current && chatHistory.length > 0) {
+      const validateChatHistory = async () => {
+        const token = localStorage.getItem("accessToken");
+        if (!token) return;
+        const validatedChats = await Promise.all(
+          chatHistory.map(async (chat) => {
+            // Assume chat with 24-character id comes from server
+            if (chat.id && chat.id.length === 24) {
+              try {
+                const res = await fetch(`/api/chat?chatId=${chat.id}`, {
+                  method: "GET",
+                  headers: { 'Authorization': `Bearer ${token}` },
+                });
+                if (res.ok) {
+                  return chat;
+                } else {
+                  return null;
+                }
+              } catch (e) {
+                return null;
+              }
+            }
+            return chat;
+          })
+        );
+        setChatHistory(validatedChats.filter(chat => chat !== null));
+        validatedRef.current = true;
+      };
+      validateChatHistory();
+    }
+  }, [chatHistory]);
 
   // Attach scroll listener to update "atBottom" state
   useEffect(() => {
@@ -210,7 +248,8 @@ const ChatPage = () => {
         }
       : { sender: "User", text: payload };
 
-    const chatTitle = userMessage.text || userMessage.fileName || "New Chat";
+    // For new chats, update title based on the combined message text.
+    const combinedMessage = userMessage.text || userMessage.fileName || "New Chat";
     const newChat = selectedChat
       ? {
           ...selectedChat,
@@ -222,7 +261,7 @@ const ChatPage = () => {
         }
       : {
           id: String(Date.now()),
-          title: chatTitle,
+          title: combinedMessage.substring(0, 50), // Update title to reflect the first message
           messages: [userMessage, { sender: "Assistant", text: "..." }],
         };
 
@@ -383,7 +422,7 @@ const ChatPage = () => {
                   >
                     {editingChatId === chat.id ? (
                       <input
-                        className="w-full box-border bg-transparent text-gray-900 dark:text-gray-100 border-b border-gray-400 dark:border-gray-600 focus:outline-none"
+                        className="w-full box-border bg-transparent dark:text-gray-100 border-b border-gray-400 dark:border-gray-600 focus:outline-none"
                         value={editedTitle}
                         onChange={(e) => setEditedTitle(e.target.value)}
                         onBlur={() => saveChatTitle(chat.id, editedTitle)}
@@ -396,7 +435,7 @@ const ChatPage = () => {
                       />
                     ) : (
                       <span
-                        className="text-gray-900 dark:text-gray-100"
+                        className="dark:text-gray-100"
                         onDoubleClick={(e) => {
                           e.stopPropagation();
                           setEditingChatId(chat.id);

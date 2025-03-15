@@ -26,6 +26,33 @@ function extractPDFText(buffer) {
   });
 }
 
+/**
+ * GET /api/chat?chatId=CHAT_ID
+ * Retrieve a chat by its ID. If not found, returns a 404.
+ */
+export async function GET(request) {
+  await connectDB();
+  const { searchParams } = new URL(request.url);
+  const chatId = searchParams.get('chatId');
+  if (!chatId || !ObjectId.isValid(chatId)) {
+    return NextResponse.json({ error: 'Invalid chatId' }, { status: 400 });
+  }
+  try {
+    const chat = await Chat.findById(new ObjectId(chatId));
+    if (!chat) {
+      return NextResponse.json({ error: 'Chat not found' }, { status: 404 });
+    }
+    return NextResponse.json({ chat }, { status: 200 });
+  } catch (error) {
+    console.error("Error retrieving chat:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+/**
+ * POST /api/chat
+ * Creates or updates a chat by appending the user's message and then invoking AI to generate a response.
+ */
 export async function POST(request) {
   await connectDB();
 
@@ -83,8 +110,7 @@ export async function POST(request) {
           }
         }
       }
-      // If the form data includes a valid chatId, you could read it:
-      // chatId = formData.get("chatId"); // if you pass it from front end
+      // Optionally: chatId = formData.get("chatId");
     } else {
       const jsonBody = await request.json();
       messageText =
@@ -141,7 +167,7 @@ export async function POST(request) {
     await chat.save();
 
     // Teacher instruction
-    const teacherInstruction = `You are a enthusiastic Teacher who makes studying and learning things fun and intresting. Do not summarize texts or provide key points for a large corpus of text provided by the user, even if they ask you to.
+    const teacherInstruction = `You are a enthusiastic Teacher who makes studying and learning fun and interesting. Do not summarize texts or provide key points for a large corpus of text provided by the user, even if they ask you to.
       If the user asks for a summary or key points unless it is your own generated text, reply with: "I am sorry but I can't summarize texts for you. Please use the summarizer feature.".
     `;
 
@@ -168,7 +194,7 @@ export async function POST(request) {
     chat.messages.push({ sender: 'Assistant', text: aiResponse });
     await chat.save();
 
-    // Return the real MongoDB _id to the client
+    // Return the chat _id, AI response, and messages
     return NextResponse.json(
       {
         chatId: chat._id,
@@ -183,6 +209,10 @@ export async function POST(request) {
   }
 }
 
+/**
+ * DELETE /api/chat?chatId=CHAT_ID
+ * Deletes a chat document.
+ */
 export async function DELETE(request) {
   await connectDB();
   
@@ -190,6 +220,7 @@ export async function DELETE(request) {
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  
   let decoded;
   try {
     decoded = jwtDecode(token);
@@ -199,15 +230,14 @@ export async function DELETE(request) {
   } catch (error) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
-
+  
   const { searchParams } = new URL(request.url);
   const chatId = searchParams.get('chatId');
-
-  // Must be a valid MongoDB ObjectId
+  
   if (!chatId || !ObjectId.isValid(chatId)) {
     return NextResponse.json({ error: 'Invalid chatId' }, { status: 400 });
   }
-
+  
   try {
     const result = await Chat.deleteOne({ _id: new ObjectId(chatId) });
     if (result.deletedCount === 1) {
