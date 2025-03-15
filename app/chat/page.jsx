@@ -126,7 +126,6 @@ const ChatPage = () => {
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        alert("Please login first.");
         return;
       }
       const response = await fetch(`/api/chat?chatId=${chatId}`, {
@@ -134,7 +133,6 @@ const ChatPage = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) {
-        alert("Failed to delete chat from server.");
         return;
       }
       const updatedHistory = chatHistory.filter(
@@ -147,7 +145,6 @@ const ChatPage = () => {
       }
     } catch (error) {
       console.error("Delete chat error:", error);
-      alert("An error occurred while deleting the chat.");
     }
   };
 
@@ -170,7 +167,6 @@ const ChatPage = () => {
 
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      alert("Please login first.");
       setLoading(false);
       return;
     }
@@ -249,11 +245,9 @@ const ChatPage = () => {
           const updatedHistory = chatHistory.filter(chat => chat.id !== newChat.id);
           setChatHistory(updatedHistory);
           setSelectedChat(null);
-          alert("Chat not found on server. It has been removed from your history.");
           setLoading(false);
           return;
         } else {
-          alert(data.error || "Failed to send message");
           setLoading(false);
           return;
         }
@@ -269,7 +263,6 @@ const ChatPage = () => {
 
       if (!data || !data.aiResponse || typeof data.aiResponse !== "string") {
         console.error("Invalid AI response:", data);
-        alert("Received an invalid AI response.");
         setLoading(false);
         return;
       }
@@ -290,7 +283,6 @@ const ChatPage = () => {
       );
     } catch (error) {
       console.error("Fetch error:", error);
-      alert("An error occurred while sending the message.");
     } finally {
       setLoading(false);
     }
@@ -386,8 +378,8 @@ const ChatPage = () => {
         {/* Main Chat Area */}
         <div className="flex flex-grow items-center justify-center w-full overflow-y-auto pb-12 custom-scrollbar relative" ref={messagesContainerRef}>
           {selectedChat && selectedChat.messages.length > 0 ? (
-            <div className="w-full flex flex-col space-y-4 overflow-auto justify-center items-center custom-scrollbar" ref={messagesInnerRef}>
-              <div className="flex flex-col space-y-3 w-1/2 max-h-[80vh] pb-12">
+            <div className="w-full flex flex-col overflow-auto custom-scrollbar justify-center items-center -pt-12" ref={messagesInnerRef}>
+              <div className="flex flex-col space-y-3 w-1/2 max-h-[80vh]">
                 {selectedChat.messages.map((msg, idx) => {
                   if (msg.isFile) {
                     return (
