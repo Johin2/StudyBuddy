@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { FiLoader } from 'react-icons/fi';
 import Navbar from './Navbar';
 
 const Hero = ({ isUser }) => {
@@ -21,6 +22,7 @@ const Hero = ({ isUser }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const endpoint = isSignup ? '/api/signup' : '/api/login';
@@ -42,7 +44,7 @@ const Hero = ({ isUser }) => {
         login();
       } else if (response.status === 201 && isSignup) {
         setMessage('Signup successful! Please login.');
-        setIsSuccess(true)
+        setIsSuccess(true);
         setIsSignup(false);
         setFirstName('');
         setLastName('');
@@ -50,12 +52,16 @@ const Hero = ({ isUser }) => {
         setPassword('');
       } else {
         setMessage(data.error || 'An error occurred.');
-        setIsSuccess(false)
+        setIsSuccess(false);
       }
     } catch (error) {
       setMessage(error.message);
+      setIsSuccess(false);
+    } finally {
+      setLoading(false);
     }
   };
+
 
 
 
@@ -174,7 +180,11 @@ const Hero = ({ isUser }) => {
             disabled={loading}
             className={`w-full p-3 rounded-md text-white ${isSignup ? 'bg-midBlue' : 'bg-marsOrange'} hover:opacity-80 flex justify-center items-center gap-2`}
           >
-            {loading ? <FiLoader className="animate-spin" /> : (isSignup ? 'Sign Up' : 'Log In')}
+            {loading ? (
+              <FiLoader className="animate-spin text-xl" />
+            ) : (
+              isSignup ? 'Sign Up' : 'Log In'
+            )}
           </button>
         </form>
       </div>
