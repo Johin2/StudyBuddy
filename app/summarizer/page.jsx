@@ -19,6 +19,7 @@ const SummarizerPage = () => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [deletingIndex, setDeletingIndex] = useState(null); // new state for deletion spinner
 
   useEffect(() => {
     fetchFreeCount();
@@ -86,12 +87,16 @@ const SummarizerPage = () => {
     setLoading(false);
   }, [history]);
 
-  // Updated delete handler calls DELETE API endpoint
+  // Updated delete handler calls DELETE API endpoint and shows spinner
   const handleDeleteSummary = useCallback(async (index) => {
     const summaryToDelete = history[index];
     if (!summaryToDelete) return;
     const token = localStorage.getItem("accessToken");
     if (!token) return;
+    
+    // Set deletion spinner state
+    setDeletingIndex(index);
+    
     try {
       const res = await fetch(`/api/summarize?id=${summaryToDelete.id}`, {
         method: "DELETE",
@@ -108,6 +113,8 @@ const SummarizerPage = () => {
       }
     } catch (error) {
       console.error("Error deleting summary:", error);
+    } finally {
+      setDeletingIndex(null);
     }
   }, [history, selectedHistoryIndex]);
 
@@ -299,10 +306,14 @@ const SummarizerPage = () => {
                         {getSummaryPreview(item)}
                       </p>
                       <button
-                        className="text-red-500 ml-2"
+                        className="ml-2"
                         onClick={() => handleDeleteSummary(index)}
                       >
-                        <FiX />
+                        {deletingIndex === index ? (
+                          <FiLoader className="animate-spin text-red-500" />
+                        ) : (
+                          <FiX className="text-red-500" />
+                        )}
                       </button>
                     </div>
                   ))
