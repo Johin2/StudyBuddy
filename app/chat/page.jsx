@@ -13,7 +13,7 @@ import {
   FiSun,
   FiMoon,
 } from 'react-icons/fi';
-import ErrorPopup from '../components/ErrorPopup';
+import ErrorPopup from '../components/Error';
   
 // JumpingDots component for animated dots
 const JumpingDots = () => (
