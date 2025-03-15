@@ -84,22 +84,22 @@ const Hero = ({ isUser }) => {
             </button>
 
           </div>
-          <div className='flex flex-col space-y-3 justify-center items-center rounded-md border border-1 hover:bg-gray-700' onClick={() => router.push('/about')}>
+          <div className='flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border border-1 hover:bg-gray-700' onClick={() => router.push('/about')}>
             <span className='text-7xl'>📖</span>
             <h2 className='text-xl font-semibold mt-2 text-white'>About</h2>
             <p className='text-gray-300 text-center text-md'>Learn how StudyBuddy can help you</p>
           </div>
-          <div className='flex flex-col space-y-3  justify-center items-center rounded-md border border-1 hover:bg-gray-700' onClick={() => router.push('/summarizer')}>
+          <div className='flex flex-col space-y-3 cursor-pointer  justify-center items-center rounded-md border border-1 hover:bg-gray-700' onClick={() => router.push('/summarizer')}>
             <span className='text-7xl'>📝</span>
             <h2 className='text-xl font-semibold mt-2 text-white'>Summarizer</h2>
             <p className='text-gray-300 text-center text-md'>Automatically summarize notes and articles</p>
           </div>
-          <div className='flex flex-col space-y-3 justify-center items-center rounded-md border border-1 hover:bg-gray-700' onClick={() => router.push('/flashcards')}>
+          <div className='flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border border-1 hover:bg-gray-700' onClick={() => router.push('/flashcards')}>
             <span className='text-7xl'>🎴</span>
             <h2 className='text-xl font-semibold mt-2 text-white'>Flashcards</h2>
             <p className='text-gray-300 text-center text-md'>Create and study with digital flashcards</p>
           </div>
-          <div className='flex flex-col space-y-3 justify-center items-center rounded-md border border-1 hover:bg-gray-700' onClick={() => router.push('/chat')}>
+          <div className='flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border border-1 hover:bg-gray-700' onClick={() => router.push('/chat')}>
             <span className='text-7xl'>🤖</span>
             <h2 className='text-xl font-semibold mt-2 text-white'>StudyGPT</h2>
             <p className='text-gray-300 text-center text-md'> Chat with an AI-powered assistant for instant study help.</p>
