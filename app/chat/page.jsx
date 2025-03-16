@@ -453,7 +453,7 @@ const ChatPage = () => {
                       ? "bg-gray-600 text-white"
                       : "hover:bg-gray-700 text-gray-300 dark:text-gray-300"
                       }`}
-                    onClick={() => handleSelectChat(chat)}
+                    onClick={() => {handleSelectChat(chat); handleOpen()}}
                   >
                     {editingChatId === chat.id ? (
                       <input
