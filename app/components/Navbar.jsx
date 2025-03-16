@@ -86,7 +86,7 @@ const Navbar = React.memo(({ className = '', hidden = '', navbarLogo = ''}) => {
             <li onClick={handleNavigation('/about')} className="hover:text-gray-400 cursor-pointer">
               About
             </li>
-            <li onClick={logout()} className='text-red-500 hover:text-red-700 curson-pointer'>
+            <li onClick={() => logout()} className='text-red-500 hover:text-red-700 curson-pointer'>
               Logout
             </li>
           </ul>
