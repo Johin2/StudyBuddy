@@ -97,7 +97,7 @@ const Hero = ({ isUser }) => {
         </div>
         {/* "Cards" Section */}
         <div
-          className="flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border hover:bg-gray-700 p-4"
+          className="flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border hover:bg-gray-700 p-4 select-none"
           onClick={() => router.push('/about')}
         >
           <span className="text-6xl md:text-7xl">📖</span>
@@ -107,7 +107,7 @@ const Hero = ({ isUser }) => {
           </p>
         </div>
         <div
-          className="flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border hover:bg-gray-700 p-4"
+          className="flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border hover:bg-gray-700 p-4 select-none"
           onClick={() => router.push('/summarizer')}
         >
           <span className="text-6xl md:text-7xl">📝</span>
@@ -117,8 +117,8 @@ const Hero = ({ isUser }) => {
           </p>
         </div>
         <div
-          className="flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border hover:bg-gray-700 p-4"
-          onClick={() => router.push('/flashcards')}
+          className="flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border hover:bg-gray-700 p-4 select-none"
+          onClick={() => router.push('/flashcards')} 
         >
           <span className="text-6xl md:text-7xl">🎴</span>
           <h2 className="text-lg md:text-xl font-semibold mt-2 text-white">Flashcards</h2>
@@ -127,7 +127,7 @@ const Hero = ({ isUser }) => {
           </p>
         </div>
         <div
-          className="flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border hover:bg-gray-700 p-4"
+          className="flex flex-col space-y-3 cursor-pointer justify-center items-center rounded-md border hover:bg-gray-700 p-4 select-none"
           onClick={() => router.push('/chat')}
         >
           <span className="text-6xl md:text-7xl">🤖</span>
