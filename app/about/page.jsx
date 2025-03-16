@@ -8,15 +8,15 @@ const AboutUs = () => {
 
   return (
     <>
-      <Navbar className="text-black relative" />
+      <Navbar className="text-black relative" hidden = "max-sm:hidden"/>
       <section className="py-4 px-4 md:px-8 bg-white">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <header className="text-center mb-12">
-            <h1 className="text-4xl font-extrabold" style={{ color: "#023047" }}>
+            <h1 className="text-2xl md:text-4xl font-extrabold" style={{ color: "#023047" }}>
               About StudyBuddy
             </h1>
-            <p className="mt-4 text-lg text-marsOrange font-semibold">
+            <p className="mt-4 text-md md:text-lg text-marsOrange font-semibold">
               Study Smarter, Not Harder – With AI-Powered Learning!
             </p>
           </header>
@@ -25,7 +25,7 @@ const AboutUs = () => {
           <div className="space-y-8">
             {/* Our Mission */}
             <div>
-              <h2 className="text-2xl font-bold" style={{ color: "#219EBC" }}>
+              <h2 className="text-xl md:text-2xl font-bold" style={{ color: "#219EBC" }}>
                 Our Mission
               </h2>
               <p className="mt-2 text-gray-700">
@@ -38,7 +38,7 @@ const AboutUs = () => {
 
             {/* What We Offer */}
             <div>
-              <h2 className="text-2xl font-bold" style={{ color: "#219EBC" }}>
+              <h2 className="text-xl md:text-2xl font-bold" style={{ color: "#219EBC" }}>
                 What We Offer
               </h2>
               <ul className="mt-2 list-disc ml-6 text-gray-700 space-y-2">
@@ -56,13 +56,13 @@ const AboutUs = () => {
 
             {/* How to Use Each Feature */}
             <div>
-              <h2 className="text-2xl font-bold" style={{ color: "#219EBC" }}>
+              <h2 className="text-xl md:text-2xl font-bold" style={{ color: "#219EBC" }}>
                 How to Use StudyBuddy
               </h2>
 
               {/* AI Summarization */}
               <div className="mt-6">
-                <h3 className="text-xl font-semibold text-marsOrange">
+                <h3 className="text-lg md:text-xl font-semibold text-marsOrange">
                   📝 AI Summarization
                 </h3>
                 <p className="text-gray-700">
@@ -78,7 +78,7 @@ const AboutUs = () => {
 
               {/* Flashcards */}
               <div className="mt-6">
-                <h3 className="text-xl font-semibold text-marsOrange">
+                <h3 className="text-lg md:text-xl font-semibold text-marsOrange">
                   🎴 Flashcards Generator
                 </h3>
                 <p className="text-gray-700">
@@ -94,7 +94,7 @@ const AboutUs = () => {
 
               {/* StudyGPT Chatbot */}
               <div className="mt-6">
-                <h3 className="text-xl font-semibold text-marsOrange">
+                <h3 className="text-lg md:text-xl font-semibold text-marsOrange">
                   🤖 StudyGPT Chatbot
                 </h3>
                 <p className="text-gray-700">
@@ -111,7 +111,7 @@ const AboutUs = () => {
 
             {/* Meet the Creator */}
             <div>
-              <h2 className="text-2xl font-bold" style={{ color: "#219EBC" }}>
+              <h2 className="text-xl md:text-2xl font-bold" style={{ color: "#219EBC" }}>
                 Meet the Creator
               </h2>
               <div className="mt-6 flex flex-col items-center">

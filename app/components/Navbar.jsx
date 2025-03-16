@@ -19,7 +19,7 @@ const Navbar = React.memo(({ className = '', hidden = '' }) => {
     <nav
       className={`
         flex p-4 w-full fixed top-0 left-0 items-center h-16
-        bg-transparent dark:text-white
+        bg-transparent text-black
         ${className}
       `}
     >
@@ -66,7 +66,7 @@ const Navbar = React.memo(({ className = '', hidden = '' }) => {
 
       {/* Mobile menu: shown only when isMenuOpen = true (small/medium screens) */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-12 right-4 bg-white dark:bg-gray-900 shadow-md rounded-md p-4">
+        <div className="lg:hidden absolute top-12 right-4 bg-white z-50 dark:bg-gray-900 shadow-md rounded-md p-4">
           <ul className="flex flex-col space-y-4 text-lg font-bold">
             <li onClick={handleNavigation('/')} className="hover:text-gray-400 cursor-pointer">
               Home
