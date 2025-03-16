@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
   return (
     <AuthProvider>
       <html lang="en">
-        <body>{children}</body>
+        <body className="select-none">{children}</body>
       </html>
     </AuthProvider>
   );
