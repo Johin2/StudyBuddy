@@ -40,12 +40,14 @@ const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabl
   }, []);
 
   // Allow sending on Enter if Shift isn't held.
-  const handleKeyDown = useCallback((event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      if (!disabled) handleSend();
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (!disabled) {
+        handleSend();
+      }
     }
-  }, [disabled]);
+  };
 
   const handleSend = useCallback(async () => {
     // If there's no text and no file, do nothing.

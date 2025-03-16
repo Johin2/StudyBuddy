@@ -1,24 +1,21 @@
-'use client';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import ReactMarkdown from 'react-markdown';
-import Navbar from '../components/Navbar';
-import InputBar from '../components/InputBar';
-import ThreeDCarousel from '../components/ThreeDCarousel';
+"use client";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import Navbar from "../components/Navbar";
+import InputBar from "../components/InputBar";
 import {
-  FiLoader,
   FiTrash,
   FiFileText,
   FiChevronDown,
   FiEdit,
   FiSun,
   FiMoon,
-  FiX,
-} from 'react-icons/fi';
-import ErrorPopup from '../components/Error';
-  
+} from "react-icons/fi";
+import ErrorPopup from "../components/Error";
+
 // JumpingDots component for animated dots
 const JumpingDots = () => (
-  <span style={{ display: 'inline-block' }}>
+  <span style={{ display: "inline-block" }}>
     <span className="dot">.</span>
     <span className="dot">.</span>
     <span className="dot">.</span>
@@ -34,8 +31,13 @@ const JumpingDots = () => (
         animation-delay: 0.4s;
       }
       @keyframes jump {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-5px); }
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
       }
     `}</style>
   </span>
@@ -48,59 +50,64 @@ const ChatPage = () => {
   const [loading, setLoading] = useState(false);
   const [atBottom, setAtBottom] = useState(true);
   const [editingChatId, setEditingChatId] = useState(null);
-  const [editedTitle, setEditedTitle] = useState('');
+  const [editedTitle, setEditedTitle] = useState("");
+
   // Dark mode state with persistence
   const [darkMode, setDarkMode] = useState(false);
+
   // Error state for error popup
-  const [errorMessage, setErrorMessage] = useState('');
-  
-  // Refs for scrollable containers and end-of-messages
-  const messagesContainerRef = useRef(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // References to the scroll container and the end-of-messages marker
   const messagesInnerRef = useRef(null);
-  const messagesEndRef = useRef(null);
-  
-  // Ref to ensure chat history is validated only once.
   const validatedRef = useRef(false);
 
   // Toggle sidebar open/close
   const handleOpen = useCallback(() => {
-    setIsOpen(prev => !prev);
+    setIsOpen((prev) => !prev);
   }, []);
 
   // Toggle dark mode and persist
   const toggleDarkMode = useCallback(() => {
-    setDarkMode(prev => !prev);
+    setDarkMode((prev) => !prev);
   }, []);
 
+  // Smooth scroll to the bottom
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesInnerRef.current) {
+      messagesInnerRef.current.scrollTo({
+        top: messagesInnerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, []);
 
   // Load saved state from localStorage
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
+    const savedDarkMode = localStorage.getItem("darkMode");
     if (savedDarkMode) {
-      setDarkMode(savedDarkMode === 'true');
+      setDarkMode(savedDarkMode === "true");
     }
-    const savedChatHistory = localStorage.getItem('chatHistory');
-    const savedSelectedChat = localStorage.getItem('selectedChat');
+    const savedChatHistory = localStorage.getItem("chatHistory");
+    const savedSelectedChat = localStorage.getItem("selectedChat");
     if (savedChatHistory) setChatHistory(JSON.parse(savedChatHistory));
     if (savedSelectedChat) setSelectedChat(JSON.parse(savedSelectedChat));
   }, []);
 
-  // Persist dark mode state
+  // Persist dark mode
   useEffect(() => {
-    localStorage.setItem('darkMode', darkMode);
+    localStorage.setItem("darkMode", darkMode);
   }, [darkMode]);
 
-  // Persist chat history and selected chat
+  // Persist chat history
   useEffect(() => {
-    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
   }, [chatHistory]);
 
+  // Persist selected chat
   useEffect(() => {
     if (selectedChat) {
-      localStorage.setItem('selectedChat', JSON.stringify(selectedChat));
+      localStorage.setItem("selectedChat", JSON.stringify(selectedChat));
     }
   }, [selectedChat]);
 
@@ -112,12 +119,12 @@ const ChatPage = () => {
         if (!token) return;
         const validatedChats = await Promise.all(
           chatHistory.map(async (chat) => {
-            // Assume chat with 24-character id comes from server
+            // Assume chat with a 24-character id comes from server
             if (chat.id && chat.id.length === 24) {
               try {
                 const res = await fetch(`/api/chat?chatId=${chat.id}`, {
                   method: "GET",
-                  headers: { 'Authorization': `Bearer ${token}` },
+                  headers: { Authorization: `Bearer ${token}` },
                 });
                 if (res.ok) {
                   return chat;
@@ -128,24 +135,26 @@ const ChatPage = () => {
                 return null;
               }
             }
+            // Otherwise, treat it as local
             return chat;
           })
         );
-        setChatHistory(validatedChats.filter(chat => chat !== null));
+        setChatHistory(validatedChats.filter((c) => c !== null));
         validatedRef.current = true;
       };
       validateChatHistory();
     }
   }, [chatHistory]);
 
-  // Attach scroll listener to update "atBottom" state
+  // Track scrolling to show/hide the scroll-to-bottom button
   useEffect(() => {
     const container = messagesInnerRef.current;
     if (!container) return;
 
     const handleScroll = () => {
       const isAtBottom =
-        container.scrollHeight - container.scrollTop <= container.clientHeight + 10;
+        container.scrollHeight - container.scrollTop <=
+        container.clientHeight + 10;
       setAtBottom(isAtBottom);
     };
 
@@ -161,23 +170,23 @@ const ChatPage = () => {
 
   // Create new chat
   const createNewChat = useCallback(() => {
-    const newChat = { id: String(Date.now()), title: 'New Chat', messages: [] };
-    setChatHistory(prev => [newChat, ...prev]);
+    const newChat = { id: String(Date.now()), title: "New Chat", messages: [] };
+    setChatHistory((prev) => [newChat, ...prev]);
     setSelectedChat(newChat);
   }, []);
 
-  // Delete chat function
+  // Delete chat
   const deleteChat = useCallback(
     async (chatId) => {
-      // If chatId is not 24 characters, treat it as a local-only chat.
+      // If chatId is not 24 characters, treat it as local-only
       if (!(chatId && chatId.length === 24)) {
         const updatedHistory = chatHistory.filter(
-          chat => (chat._id || chat.id) !== chatId
+          (chat) => (chat._id || chat.id) !== chatId
         );
         setChatHistory(updatedHistory);
         if ((selectedChat?._id || selectedChat?.id) === chatId) {
           setSelectedChat(null);
-          localStorage.removeItem('selectedChat');
+          localStorage.removeItem("selectedChat");
         }
         return;
       }
@@ -186,19 +195,19 @@ const ChatPage = () => {
         if (!token) return;
         const response = await fetch(`/api/chat?chatId=${chatId}`, {
           method: "DELETE",
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) {
           setErrorMessage("Failed to delete chat from server");
           return;
         }
         const updatedHistory = chatHistory.filter(
-          chat => (chat._id || chat.id) !== chatId
+          (chat) => (chat._id || chat.id) !== chatId
         );
         setChatHistory(updatedHistory);
         if ((selectedChat?._id || selectedChat?.id) === chatId) {
           setSelectedChat(null);
-          localStorage.removeItem('selectedChat');
+          localStorage.removeItem("selectedChat");
         }
       } catch (error) {
         console.error("Delete chat error:", error);
@@ -208,160 +217,187 @@ const ChatPage = () => {
     [chatHistory, selectedChat]
   );
 
-  // Rename chat function
-  const saveChatTitle = useCallback((chatId, newTitle) => {
-    const updatedHistory = chatHistory.map(chat =>
-      chat.id === chatId ? { ...chat, title: newTitle } : chat
-    );
-    setChatHistory(updatedHistory);
-    if (selectedChat && selectedChat.id === chatId) {
-      setSelectedChat({ ...selectedChat, title: newTitle });
-    }
-    localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
-    setEditingChatId(null);
-  }, [chatHistory, selectedChat]);
+  // Rename chat
+  const saveChatTitle = useCallback(
+    (chatId, newTitle) => {
+      const updatedHistory = chatHistory.map((chat) =>
+        chat.id === chatId ? { ...chat, title: newTitle } : chat
+      );
+      setChatHistory(updatedHistory);
+      if (selectedChat && selectedChat.id === chatId) {
+        setSelectedChat({ ...selectedChat, title: newTitle });
+      }
+      localStorage.setItem("chatHistory", JSON.stringify(updatedHistory));
+      setEditingChatId(null);
+    },
+    [chatHistory, selectedChat]
+  );
 
-  // Set selected chat from history
+  // Select a chat from history
   const handleSelectChat = useCallback((chat) => {
     setSelectedChat(chat);
   }, []);
 
   // Send message handler
-  const handleSendMessage = useCallback(async (payload) => {
-    if (!payload) return;
-    setLoading(true);
+  const handleSendMessage = useCallback(
+    async (payload) => {
+      if (!payload) return;
+      setLoading(true);
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      setErrorMessage("Access token not found. Please log in.");
-      setLoading(false);
-      return;
-    }
-
-    const isFilePayload = typeof payload === 'object' && payload.fileName;
-    const userMessage = isFilePayload
-      ? {
-          sender: "User",
-          text: payload.text,
-          fileName: payload.fileName,
-          isFile: true,
-        }
-      : { sender: "User", text: payload };
-
-    // For new chats, update title based on the combined message text.
-    const combinedMessage = userMessage.text || userMessage.fileName || "New Chat";
-    const newChat = selectedChat
-      ? {
-          ...selectedChat,
-          messages: [
-            ...selectedChat.messages,
-            userMessage,
-            { sender: "Assistant", text: "..." },
-          ],
-        }
-      : {
-          id: String(Date.now()),
-          title: combinedMessage.substring(0, 50), // Update title to reflect the first message
-          messages: [userMessage, { sender: "Assistant", text: "..." }],
-        };
-
-    setSelectedChat(newChat);
-    setChatHistory(prevHistory => {
-      const exists = prevHistory.some(chat => chat.id === newChat.id);
-      return exists
-        ? prevHistory.map(chat => (chat.id === newChat.id ? newChat : chat))
-        : [newChat, ...prevHistory];
-    });
-
-    try {
-      let res;
-      if (isFilePayload) {
-        const formData = new FormData();
-        formData.append("message", payload.text);
-        formData.append("file", payload.file);
-        if (selectedChat && selectedChat.id && selectedChat.id.length === 24) {
-          formData.append("chatId", selectedChat.id);
-        }
-        res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-      } else {
-        res = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            chatId:
-              selectedChat && selectedChat.id && selectedChat.id.length === 24
-                ? selectedChat.id
-                : null,
-            message: userMessage.text,
-          }),
-        });
-      }
-
-      if (!res.ok) {
-        const data = await res.json();
-        if (
-          res.status === 404 &&
-          data.error &&
-          data.error.toLowerCase().includes("chat not found")
-        ) {
-          const updatedHistory = chatHistory.filter(
-            chat => chat.id !== newChat.id
-          );
-          setChatHistory(updatedHistory);
-          setSelectedChat(null);
-          setLoading(false);
-          return;
-        } else {
-          setLoading(false);
-          return;
-        }
-      }
-
-      const responseText = await res.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (err) {
-        throw new Error("Invalid JSON response: " + responseText);
-      }
-
-      if (!data || !data.aiResponse || typeof data.aiResponse !== "string") {
-        console.error("Invalid AI response:", data);
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        setErrorMessage("Access token not found. Please log in.");
         setLoading(false);
         return;
       }
 
-      const updatedMessages = newChat.messages.map((msg, idx) =>
-        idx === newChat.messages.length - 1
-          ? { sender: "Assistant", text: data.aiResponse }
-          : msg
-      );
-      const updatedChat = {
-        ...newChat,
-        messages: updatedMessages,
-        id: data.chatId || newChat.id,
-      };
-      setSelectedChat(updatedChat);
-      setChatHistory(prevHistory =>
-        prevHistory.map(chat => (chat.id === newChat.id ? updatedChat : chat))
-      );
-    } catch (error) {
-      console.error("Fetch error:", error);
-      setErrorMessage("Error sending message.");
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedChat, chatHistory]);
+      const isFilePayload = typeof payload === "object" && payload.fileName;
+      const userMessage = isFilePayload
+        ? {
+            sender: "User",
+            text: payload.text,
+            fileName: payload.fileName,
+            isFile: true,
+          }
+        : { sender: "User", text: payload };
+
+      // For new chats, update title based on the new message
+      const combinedMessage =
+        userMessage.text || userMessage.fileName || "New Chat";
+      const newChat = selectedChat
+        ? {
+            ...selectedChat,
+            title:
+              selectedChat.title === "New Chat"
+                ? combinedMessage.substring(0, 50)
+                : selectedChat.title,
+            messages: [
+              ...selectedChat.messages,
+              userMessage,
+              { sender: "Assistant", text: "..." },
+            ],
+          }
+        : {
+            id: String(Date.now()),
+            title: combinedMessage.substring(0, 50),
+            messages: [userMessage, { sender: "Assistant", text: "..." }],
+          };
+
+      // Optimistically update UI
+      setSelectedChat(newChat);
+      setChatHistory((prevHistory) => {
+        const exists = prevHistory.some((chat) => chat.id === newChat.id);
+        return exists
+          ? prevHistory.map((chat) =>
+              chat.id === newChat.id ? newChat : chat
+            )
+          : [newChat, ...prevHistory];
+      });
+
+      try {
+        let res;
+        if (isFilePayload) {
+          // multipart form if user is uploading a file
+          const formData = new FormData();
+          formData.append("message", payload.text);
+          formData.append("file", payload.file);
+          // If we have a valid chatId from the server, use it
+          if (
+            selectedChat &&
+            selectedChat.id &&
+            selectedChat.id.length === 24
+          ) {
+            formData.append("chatId", selectedChat.id);
+          }
+          res = await fetch("/api/chat", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          });
+        } else {
+          // JSON body otherwise
+          res = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              chatId:
+                selectedChat && selectedChat.id && selectedChat.id.length === 24
+                  ? selectedChat.id
+                  : null,
+              message: userMessage.text,
+            }),
+          });
+        }
+
+        if (!res.ok) {
+          const data = await res.json();
+          // If the chat is not found on the server, remove it locally
+          if (
+            res.status === 404 &&
+            data.error &&
+            data.error.toLowerCase().includes("chat not found")
+          ) {
+            const updatedHistory = chatHistory.filter(
+              (chat) => chat.id !== newChat.id
+            );
+            setChatHistory(updatedHistory);
+            setSelectedChat(null);
+          }
+          setLoading(false);
+          return;
+        }
+
+        const responseText = await res.text();
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (err) {
+          throw new Error("Invalid JSON response: " + responseText);
+        }
+
+        if (!data || !data.aiResponse || typeof data.aiResponse !== "string") {
+          console.error("Invalid AI response:", data);
+          setLoading(false);
+          return;
+        }
+
+        // Replace the placeholder "..." with the real AI response
+        const updatedMessages = newChat.messages.map((msg, idx) =>
+          idx === newChat.messages.length - 1
+            ? { sender: "Assistant", text: data.aiResponse }
+            : msg
+        );
+
+        // Use the new chatId from the server if it gave one
+        const updatedChat = {
+          ...newChat,
+          messages: updatedMessages,
+          id: data.chatId || newChat.id,
+          // Some backends also return a generated `title`, e.g. data.title
+          title: data.title || newChat.title,
+        };
+
+        setSelectedChat(updatedChat);
+        setChatHistory((prevHistory) =>
+          prevHistory.map((chat) =>
+            chat.id === newChat.id ? updatedChat : chat
+          )
+        );
+      } catch (error) {
+        console.error("Fetch error:", error);
+        setErrorMessage("Error sending message.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedChat, chatHistory]
+  );
 
   return (
-    <div className={`${darkMode ? 'dark' : ''}`}>
+    <div className={darkMode ? "dark" : ""}>
       {/* Navbar with dark mode toggle */}
       <div className="w-full fixed top-0 z-50">
         <Navbar hidden="hidden" className="pt-8 select-none dark:text-white" />
@@ -383,10 +419,11 @@ const ChatPage = () => {
           src="/images/sidebar.svg"
           alt="sidebar"
           onClick={handleOpen}
-          className={`w-9 h-9 absolute select-none top-8 left-4 z-50 cursor-pointer transition-all dark:invert duration-300 ${
-            isOpen ? "invert" : ""
-          }`}
+          className={`w-9 h-9 absolute select-none top-8 left-4 z-50 cursor-pointer transition-all duration-300 ${
+            darkMode ? "dark:invert" : ""
+          } ${isOpen ? "invert" : ""}`}
         />
+
         {/* Sidebar */}
         <div
           className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all duration-300 ${
@@ -410,7 +447,7 @@ const ChatPage = () => {
                 </span>
               </button>
               <ul>
-                {chatHistory.map(chat => (
+                {chatHistory.map((chat) => (
                   <li
                     key={chat.id}
                     className={`p-2 flex justify-between items-center rounded-md mb-2 cursor-pointer ${
@@ -427,7 +464,7 @@ const ChatPage = () => {
                         onChange={(e) => setEditedTitle(e.target.value)}
                         onBlur={() => saveChatTitle(chat.id, editedTitle)}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
+                          if (e.key === "Enter") {
                             saveChatTitle(chat.id, editedTitle);
                           }
                         }}
@@ -470,13 +507,10 @@ const ChatPage = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div
-          className="flex flex-grow items-center justify-center w-full overflow-y-auto pb-12 custom-scrollbar relative"
-          ref={messagesContainerRef}
-        >
+        <div className="flex flex-grow w-full overflow-y-auto pb-12 custom-scrollbar relative">
           {selectedChat && selectedChat.messages.length > 0 ? (
             <div
-              className="w-full flex flex-col overflow-auto custom-scrollbar justify-center items-center -pt-12"
+              className="w-full flex flex-col overflow-auto custom-scrollbar my-16 items-center justify-center"
               ref={messagesInnerRef}
             >
               <div className="flex flex-col space-y-3 w-1/2 max-h-[80vh]">
@@ -508,7 +542,9 @@ const ChatPage = () => {
                             <span className="text-sm font-medium text-gray-700">
                               {msg.fileName}
                             </span>
-                            <span className="text-xs text-gray-500">Document</span>
+                            <span className="text-xs text-gray-500">
+                              Document
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -538,6 +574,7 @@ const ChatPage = () => {
                   );
                 })}
               </div>
+
               {/* Scroll-to-bottom button */}
               {!atBottom && (
                 <button
@@ -549,7 +586,6 @@ const ChatPage = () => {
                   <FiChevronDown className="text-white" />
                 </button>
               )}
-              <div ref={messagesEndRef} />
             </div>
           ) : (
             <div className="flex items-center justify-center h-full w-full">
@@ -571,7 +607,7 @@ const ChatPage = () => {
           disabled={loading}
         />
       </div>
-      
+
       {/* Error Popup */}
       {errorMessage && (
         <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
