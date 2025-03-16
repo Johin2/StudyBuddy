@@ -117,6 +117,7 @@ export async function POST(request) {
       const genAI = new GoogleGenerativeAI(gemini_api_key);
       const genModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       const prompt = `
+        Your only task is to summarize large ammounts of text.Dont answer any types of question open ended or closed.
         Summarize the following content for me directly. Make sure the first letter is always capital.
         Keep the output properly formatted.
         Start directly with the content and do not include any preamble like "Okay, here's a summary of the".
