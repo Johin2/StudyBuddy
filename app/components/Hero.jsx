@@ -139,115 +139,208 @@ const Hero = ({ isUser }) => {
       </div>
     </div>
   ) : (
-    <div className="flex flex-col md:flex-row w-screen h-screen">
-      {/* Left Side (Image + Title) */}
-      <div className="relative w-full md:w-1/2 h-1/2 md:h-full overflow-hidden">
-        <h1 className="text-2xl font-bold text-white absolute top-2 left-2 z-10">
-          StudyBuddy
-        </h1>
-        <img
-          src="/images/login-signup.png"
-          alt="cover-image"
-          className="object-cover object-center w-full h-full"
-        />
-      </div>
+<div className="relative w-screen h-screen">
+  {/* Image Container (full screen on small screens, half on md+) */}
+  <div className="relative w-full h-screen md:w-1/2 md:h-full overflow-hidden">
+    <h1 className="text-2xl font-bold text-white absolute top-2 left-2 z-10">
+      StudyBuddy
+    </h1>
+    <img
+      src="/images/login-signup.png"
+      alt="cover-image"
+      className="object-cover object-center w-full h-full"
+    />
+  </div>
 
-      {/* Right Side (Login/Signup Form) */}
-      <div className="w-full md:w-1/2 h-1/2 md:h-full flex justify-center items-center">
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col space-y-6 justify-center items-center w-[90%] max-w-md mx-auto p-4"
+  {/* Form for medium screens and up (side-by-side layout) */}
+  <div className="hidden md:flex absolute right-0 top-0 w-1/2 h-full justify-center items-center">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col space-y-6 justify-center items-center w-[90%] max-w-md mx-auto p-4"
+    >
+      {/* Toggle Buttons */}
+      <div className="flex h-12 rounded-lg border-2 border-black mb-4 w-full">
+        <button
+          type="button"
+          onClick={toggleSignup}
+          className={`flex-1 rounded-md ${
+            isSignup ? 'bg-midBlue text-white' : 'bg-gray-100'
+          } transition-colors`}
         >
-          {/* Toggle Buttons */}
-          <div className="flex h-12 rounded-lg border-[2px] border-black mb-4 w-full">
-            <button
-              type="button"
-              onClick={toggleSignup}
-              className={`flex-1 rounded-md ${
-                isSignup ? 'bg-midBlue text-white' : 'bg-gray-100'
-              } transition-colors`}
-            >
-              Signup
-            </button>
-            <button
-              type="button"
-              onClick={toggleLogin}
-              className={`flex-1 rounded-md ${
-                !isSignup ? 'bg-marsOrange text-white' : 'bg-gray-100'
-              } transition-colors`}
-            >
-              Login
-            </button>
-          </div>
-
-          {isSignup && (
-            <div className="flex flex-col md:flex-row gap-2 w-full">
-              <input
-                type="text"
-                placeholder="First name"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                className="p-2 border-2 border-black rounded-md w-full"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Last name"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                className="p-2 border-2 border-black rounded-md w-full"
-              />
-            </div>
-          )}
-
-          <input
-            type="email"
-            placeholder="Email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            className="p-2 border-2 border-black rounded-md w-full"
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            className="p-2 border-2 border-black rounded-md w-full"
-            required
-          />
-
-          {message && (
-            <p
-              className={`text-center ${isSuccess ? 'text-green-500' : 'text-red-500'}`}
-            >
-              {message}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full p-3 rounded-md text-white flex justify-center items-center gap-2 ${
-              isSignup ? 'bg-midBlue' : 'bg-marsOrange'
-            } hover:opacity-80 transition`}
-          >
-            {loading ? (
-              <FiLoader className="animate-spin text-xl" />
-            ) : isSignup ? (
-              'Sign Up'
-            ) : (
-              'Log In'
-            )}
-          </button>
-        </form>
+          Signup
+        </button>
+        <button
+          type="button"
+          onClick={toggleLogin}
+          className={`flex-1 rounded-md ${
+            !isSignup ? 'bg-marsOrange text-white' : 'bg-gray-100'
+          } transition-colors`}
+        >
+          Login
+        </button>
       </div>
-    </div>
+
+      {isSignup && (
+        <div className="flex flex-col md:flex-row gap-2 w-full">
+          <input
+            type="text"
+            placeholder="First name"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleInputChange}
+            className="p-2 border-2 border-black rounded-md w-full"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Last name"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+            className="p-2 border-2 border-black rounded-md w-full"
+          />
+        </div>
+      )}
+
+      <input
+        type="email"
+        placeholder="Email"
+        name="email"
+        value={formData.email}
+        onChange={handleInputChange}
+        className="p-2 border-2 border-black rounded-md w-full"
+        required
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        name="password"
+        value={formData.password}
+        onChange={handleInputChange}
+        className="p-2 border-2 border-black rounded-md w-full"
+        required
+      />
+
+      {message && (
+        <p className={`text-center ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
+          {message}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className={`w-full p-3 rounded-md text-white flex justify-center items-center gap-2 ${
+          isSignup ? 'bg-midBlue' : 'bg-marsOrange'
+        } hover:opacity-80 transition`}
+      >
+        {loading ? (
+          <FiLoader className="animate-spin text-xl" />
+        ) : isSignup ? (
+          'Sign Up'
+        ) : (
+          'Log In'
+        )}
+      </button>
+    </form>
+  </div>
+
+  {/* Form for small screens (overlay on full-screen image) */}
+  <div className="md:hidden absolute inset-0 flex justify-center items-center">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col space-y-6 justify-center items-center w-[90%] max-w-md mx-auto p-4 bg-white bg-opacity-90 rounded-lg"
+    >
+      {/* Toggle Buttons */}
+      <div className="flex h-12 rounded-lg border-2 border-black mb-4 w-full">
+        <button
+          type="button"
+          onClick={toggleSignup}
+          className={`flex-1 rounded-md ${
+            isSignup ? 'bg-midBlue text-white' : 'bg-gray-100'
+          } transition-colors`}
+        >
+          Signup
+        </button>
+        <button
+          type="button"
+          onClick={toggleLogin}
+          className={`flex-1 rounded-md ${
+            !isSignup ? 'bg-marsOrange text-white' : 'bg-gray-100'
+          } transition-colors`}
+        >
+          Login
+        </button>
+      </div>
+
+      {isSignup && (
+        <div className="flex flex-col md:flex-row gap-2 w-full">
+          <input
+            type="text"
+            placeholder="First name"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleInputChange}
+            className="p-2 border-2 border-black rounded-md w-full"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Last name"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+            className="p-2 border-2 border-black rounded-md w-full"
+          />
+        </div>
+      )}
+
+      <input
+        type="email"
+        placeholder="Email"
+        name="email"
+        value={formData.email}
+        onChange={handleInputChange}
+        className="p-2 border-2 border-black rounded-md w-full"
+        required
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        name="password"
+        value={formData.password}
+        onChange={handleInputChange}
+        className="p-2 border-2 border-black rounded-md w-full"
+        required
+      />
+
+      {message && (
+        <p className={`text-center ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
+          {message}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className={`w-full p-3 rounded-md text-white flex justify-center items-center gap-2 ${
+          isSignup ? 'bg-midBlue' : 'bg-marsOrange'
+        } hover:opacity-80 transition`}
+      >
+        {loading ? (
+          <FiLoader className="animate-spin text-xl" />
+        ) : isSignup ? (
+          'Sign Up'
+        ) : (
+          'Log In'
+        )}
+      </button>
+    </form>
+  </div>
+</div>
+
   );
 };
 
