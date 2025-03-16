@@ -585,7 +585,7 @@ const ChatPage = () => {
             </div>
           ) : (
             <div className="flex items-center justify-center h-full w-full">
-              <h1 className="text-gray-800 dark:text-gray-200 text-4xl opacity-50 select-none font-bold">
+              <h1 className="text-gray-800 dark:text-gray-200 text-2xl md:text-4xl opacity-50 select-none font-bold">
                 StudyBuddy
               </h1>
             </div>
