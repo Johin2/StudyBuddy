@@ -399,7 +399,7 @@ const ChatPage = () => {
   return (
     <div className={darkMode ? "dark" : ""}>        
         {/* Fixed top bar */}
-        <div className="w-full fixed top-0 z-50 flex items-center justify-end p-2 ">
+        <div className="w-full fixed top-0 z-30 flex items-center justify-end p-2 ">
           <Navbar hidden="hidden" className="select-none dark:text-white max-sm:top-4" />
 
           <button
@@ -426,7 +426,7 @@ const ChatPage = () => {
 
         {/* Sidebar */}
         <div
-          className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all duration-300 ${isOpen ? "w-full md:w-72" : "w-0"
+          className={`bg-darkBlue text-white fixed left-0 z-40 top-0 h-full transition-all duration-300 ${isOpen ? "w-full md:w-72" : "w-0"
             } overflow-y-auto z-10`}
         >
           {isOpen && (
@@ -511,7 +511,7 @@ const ChatPage = () => {
               className="w-full flex flex-col overflow-auto custom-scrollbar my-16 items-center justify-center"
               ref={messagesInnerRef}
             >
-              <div className="flex flex-col space-y-3 w-full px-2 md:px-0 md:w-1/2 max-h-[80vh]">
+              <div className="flex flex-col space-y-3 w-full px-2 md:px-0 sm:w-1/2 max-h-[80vh]">
                 {selectedChat.messages.map((msg, idx) => {
                   if (msg.isFile) {
                     return (
