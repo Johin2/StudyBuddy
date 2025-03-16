@@ -97,7 +97,7 @@ const SummarizerPage = () => {
 
     // Set deletion spinner state
     setDeletingIndex(index);
-    
+
     try {
       const res = await fetch(`/api/summarize?id=${summaryToDelete.id}`, {
         method: "DELETE",
@@ -209,32 +209,35 @@ const SummarizerPage = () => {
         <meta name="description" content="Generate summaries from text, PDFs, or DOCX. StudyBuddy summarizer: quick, easy, and by students, for students." />
         <meta name="keywords" content="StudyBuddy, summarizer, summary, text summarization, PDF summarizer" />
       </Head>
-      <div className="flex flex-col w-screen h-screen relative">
-        {/* Background Image */}
+
+      {/* Fixed Background Image */}
+      <div className="fixed inset-0 -z-10">
         <Image
           src="/images/home-bg.svg"
           alt="backdrop"
           layout="fill"
           objectFit="cover"
-          className="-z-10"
+          className="object-cover"
           priority
         />
-        <Navbar className="text-white" />
+      </div>
 
-        <div className="grid grid-cols-2 grid-rows-3 w-full h-full p-12 gap-12">
+      {/* Main scrollable content */}
+      <div className="relative z-10 flex flex-col w-full min-h-screen pt-[64px]">
+        <Navbar className="lg:text-white absolute" hidden="text-white" navbarLogo="text-white" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 w-full h-full p-4 lg:p-12 gap-4 lg:gap-12">
           {/* Input Section */}
-          <div className="border-2 w-full col-span-1 row-span-1 mt-6 border-gray-400 rounded-lg p-6 bg-white shadow-md overflow-hidden">
-            <h2 className="text-2xl lg:mb-6 font-semibold flex items-center gap-2 text-gray-800">
+          <div className="border-2 w-full mt-6 border-gray-400 rounded-lg bg-white shadow-md overflow-hidden lg:col-span-1 lg:row-span-1">
+            <h2 className="md:text-lg lg:text-2xl lg:mb-6 font-semibold flex items-center gap-2 text-gray-800 pt-6 pl-6 max-md:pb-6">
               <FiFileText className="text-midBlue flex-shrink-0 font-semibold" />
               Upload Text, PDF, or DOCX
             </h2>
-            <div className="w-full max-w-full overflow-hidden pb-12">
+            <div className="w-full max-w-full overflow-hidden pl-6 py-6 lg:py-0">
               <InputBar
                 width="w-full"
-                placeholderText="Enter text manually or upload a document (Max. size: 4.5 MB)"
+                placeholderText="Summarize text"
                 onSendStarted={() => {
-                  setLoading(true);
-                  setErrorMessage("");
                 }}
                 onMessageSent={handleSendMessage}
               />
@@ -242,7 +245,7 @@ const SummarizerPage = () => {
           </div>
 
           {/* Summary Display Section */}
-          <div className="border-2 col-span-1 row-span-3 mt-6 border-gray-400 rounded-lg p-6 bg-white shadow-md">
+          <div className="border-2 mt-6 border-gray-400 rounded-lg p-6 bg-white shadow-md overflow-hidden lg:col-span-1 lg:row-span-3">
             <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-800">
               <FiList className="text-midBlue" /> Generated Summary
             </h2>
@@ -283,7 +286,7 @@ const SummarizerPage = () => {
           </div>
 
           {/* History Section */}
-          <div className="flex flex-col border-2 border-gray-400 col-span-1 row-span-2 rounded-lg bg-white shadow-md overflow-hidden">
+          <div className="flex flex-col border-2 border-gray-400 rounded-lg bg-white shadow-md overflow-hidden lg:col-span-1 lg:row-span-2 max-h-[300px] lg:max-h-full">
             <div className="flex flex-shrink-0 m-0 p-0">
               <h1 className="text-white rounded-tl-lg text-center w-1/2 bg-gray-700 font-medium h-12 flex items-center justify-center m-0">
                 History
@@ -339,6 +342,7 @@ const SummarizerPage = () => {
               </div>
             </div>
           </div>
+
         </div>
 
         {/* Purchase Modal */}
@@ -372,12 +376,12 @@ const SummarizerPage = () => {
             </div>
           </div>
         )}
+
+        {/* Error Popup */}
+        {errorMessage && (
+          <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
+        )}
       </div>
-      
-      {/* Error Popup */}
-      {errorMessage && (
-        <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
-      )}
     </>
   );
 };

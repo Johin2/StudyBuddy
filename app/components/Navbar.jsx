@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FiMenu, FiX } from 'react-icons/fi';
 
-const Navbar = React.memo(({ className = '', hidden = '' }) => {
+const Navbar = React.memo(({ className = '', hidden = '', navbarLogo = ''}) => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -57,11 +57,11 @@ const Navbar = React.memo(({ className = '', hidden = '' }) => {
 
       {/* Hamburger icon: visible on small/medium; hidden on large */}
       <button
-        className="block lg:hidden p-2 mr-4"
+        className={`block lg:hidden p-2 mr-4 ${navbarLogo}`}
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         title="Toggle Menu"
       >
-        {isMenuOpen ? <FiX /> : <FiMenu className='size-6'/>}
+        {isMenuOpen ? <FiX/> : <FiMenu className='size-6'/>}
       </button>
 
       {/* Mobile menu: shown only when isMenuOpen = true (small/medium screens) */}

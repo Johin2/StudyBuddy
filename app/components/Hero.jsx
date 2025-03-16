@@ -72,7 +72,7 @@ const Hero = ({ isUser }) => {
 
   return isUser ? (
     <div className="flex flex-col max-sm:relative w-full min-h-screen pt-[64px]">
-      <Navbar className="max-sm:text-black text-white absolute" hidden="text-white"/>
+      <Navbar className="max-sm:text-black lg:text-white absolute" hidden="text-white" navbarLogo = "text-white"/>
       <img
         src="/images/home-bg.svg"
         alt="backdrop"
