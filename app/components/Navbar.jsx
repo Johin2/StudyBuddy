@@ -1,10 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FiMenu, FiX } from 'react-icons/fi';
+import { useAuth } from '../Context/AuthContext';
+
 
 const Navbar = React.memo(({ className = '', hidden = '', navbarLogo = ''}) => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { logout } = useAuth()
 
   // Helper function to navigate to a given path
   const handleNavigation = useCallback(
@@ -82,6 +85,9 @@ const Navbar = React.memo(({ className = '', hidden = '', navbarLogo = ''}) => {
             </li>
             <li onClick={handleNavigation('/about')} className="hover:text-gray-400 cursor-pointer">
               About
+            </li>
+            <li onClick={logout()} className='text-red-500 hover:text-red-700 curson-pointer'>
+              Logout
             </li>
           </ul>
         </div>
