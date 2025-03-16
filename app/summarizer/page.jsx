@@ -271,9 +271,9 @@ const SummarizerPage = () => {
                 </button>
               )}
             </div>
-            <div className="mt-4 text-gray-700">
+            <div className=" text-gray-700">
               {!subscription ? (
-                <p className="font-semibold">
+                <p className="font-semibold pb-12">
                   Free summaries left:{" "}
                   <span className="text-marsOrange">
                     {freeSummariesLeft !== null ? freeSummariesLeft : <FiLoader className="animate-spin inline-block" />}
