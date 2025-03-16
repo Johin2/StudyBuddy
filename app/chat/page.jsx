@@ -254,11 +254,11 @@ const ChatPage = () => {
       const isFilePayload = typeof payload === "object" && payload.fileName;
       const userMessage = isFilePayload
         ? {
-            sender: "User",
-            text: payload.text,
-            fileName: payload.fileName,
-            isFile: true,
-          }
+          sender: "User",
+          text: payload.text,
+          fileName: payload.fileName,
+          isFile: true,
+        }
         : { sender: "User", text: payload };
 
       // For new chats, update title based on the new message
@@ -266,22 +266,22 @@ const ChatPage = () => {
         userMessage.text || userMessage.fileName || "New Chat";
       const newChat = selectedChat
         ? {
-            ...selectedChat,
-            title:
-              selectedChat.title === "New Chat"
-                ? combinedMessage.substring(0, 50)
-                : selectedChat.title,
-            messages: [
-              ...selectedChat.messages,
-              userMessage,
-              { sender: "Assistant", text: "..." },
-            ],
-          }
+          ...selectedChat,
+          title:
+            selectedChat.title === "New Chat"
+              ? combinedMessage.substring(0, 50)
+              : selectedChat.title,
+          messages: [
+            ...selectedChat.messages,
+            userMessage,
+            { sender: "Assistant", text: "..." },
+          ],
+        }
         : {
-            id: String(Date.now()),
-            title: combinedMessage.substring(0, 50),
-            messages: [userMessage, { sender: "Assistant", text: "..." }],
-          };
+          id: String(Date.now()),
+          title: combinedMessage.substring(0, 50),
+          messages: [userMessage, { sender: "Assistant", text: "..." }],
+        };
 
       // Optimistically update UI
       setSelectedChat(newChat);
@@ -289,8 +289,8 @@ const ChatPage = () => {
         const exists = prevHistory.some((chat) => chat.id === newChat.id);
         return exists
           ? prevHistory.map((chat) =>
-              chat.id === newChat.id ? newChat : chat
-            )
+            chat.id === newChat.id ? newChat : chat
+          )
           : [newChat, ...prevHistory];
       });
 
@@ -397,41 +397,40 @@ const ChatPage = () => {
   );
 
   return (
-    <div className={darkMode ? "dark" : ""}>
-      {/* Navbar with dark mode toggle */}
-      <div className="w-full fixed top-0 z-50">
-        <Navbar hidden="hidden" className="pt-8 select-none dark:text-white" />
-        <button
-          onClick={toggleDarkMode}
-          className="absolute right-4 top-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800"
-          title="Toggle Dark Mode"
-        >
-          {darkMode ? (
-            <FiSun className="text-yellow-500" />
-          ) : (
-            <FiMoon className="text-blue-500" />
-          )}
-        </button>
-      </div>
+    <div className={darkMode ? "dark" : ""}>        
+        {/* Fixed top bar */}
+        <div className="w-full fixed top-0 z-50 flex items-center justify-end p-2 ">
+          <Navbar hidden="hidden" className="select-none dark:text-white max-sm:top-4" />
+
+          <button
+            onClick={toggleDarkMode}
+            className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 z-50"
+            title="Toggle Dark Mode"
+          >
+            {darkMode ? (
+              <FiSun className="text-yellow-500" />
+            ) : (
+              <FiMoon className="text-blue-500" />
+            )}
+          </button>
+        </div>
 
       <div className="h-screen w-screen flex relative overflow-y-auto custom-scrollbar bg-white dark:bg-gray-900 text-black dark:text-white">
         <img
           src="/images/sidebar.svg"
           alt="sidebar"
           onClick={handleOpen}
-          className={`w-9 h-9 absolute select-none top-8 left-4 z-50 cursor-pointer transition-all duration-300 ${
-            darkMode ? "dark:invert" : ""
-          } ${isOpen ? "invert" : ""}`}
+          className={`w-9 h-9 absolute select-none top-8 left-4 z-50 cursor-pointer transition-all duration-300 ${darkMode ? "dark:invert" : ""
+            } ${isOpen ? "invert" : ""}`}
         />
 
         {/* Sidebar */}
         <div
-          className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all duration-300 ${
-            isOpen ? "w-72" : "w-0"
-          } overflow-y-auto z-10`}
+          className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all duration-300 ${isOpen ? "w-full md:w-72" : "w-0"
+            } overflow-y-auto z-10`}
         >
           {isOpen && (
-            <div className="p-4 h-full overflow-y-auto custom-scrollbar border-r border-1 border-marsOrange dark:border-lightBlue">
+            <div className="p-4 h-full overflow-y-auto custom-scrollbar md:border-r border-1 border-marsOrange dark:border-lightBlue">
               <h2 className="mt-24 text-lg font-semibold m-2">History</h2>
               <button
                 className="flex items-center w-full gap-2 cursor-pointer p-2 hover:bg-gray-500 bg-gray-700 rounded-md mb-4"
@@ -450,11 +449,10 @@ const ChatPage = () => {
                 {chatHistory.map((chat) => (
                   <li
                     key={chat.id}
-                    className={`p-2 flex justify-between items-center rounded-md mb-2 cursor-pointer ${
-                      selectedChat?.id === chat.id
-                        ? "bg-gray-600 text-white"
-                        : "hover:bg-gray-700 text-gray-300 dark:text-gray-300"
-                    }`}
+                    className={`p-2 flex justify-between items-center rounded-md mb-2 cursor-pointer ${selectedChat?.id === chat.id
+                      ? "bg-gray-600 text-white"
+                      : "hover:bg-gray-700 text-gray-300 dark:text-gray-300"
+                      }`}
                     onClick={() => handleSelectChat(chat)}
                   >
                     {editingChatId === chat.id ? (
@@ -513,20 +511,19 @@ const ChatPage = () => {
               className="w-full flex flex-col overflow-auto custom-scrollbar my-16 items-center justify-center"
               ref={messagesInnerRef}
             >
-              <div className="flex flex-col space-y-3 w-1/2 max-h-[80vh]">
+              <div className="flex flex-col space-y-3 w-full px-2 md:px-0 md:w-1/2 max-h-[80vh]">
                 {selectedChat.messages.map((msg, idx) => {
                   if (msg.isFile) {
                     return (
                       <div
                         key={`${msg.sender}-${idx}`}
-                        className={`p-3 rounded-lg w-fit max-w-[80%] ${
-                          msg.sender === "User"
-                            ? "ml-auto text-white bg-blue-500"
-                            : "bg-gray-200 text-black"
-                        }`}
+                        className={`p-3 rounded-lg w-fit max-w-[80%] ${msg.sender === "User"
+                          ? "ml-auto text-white bg-blue-500"
+                          : "bg-gray-200 text-black"
+                          }`}
                       >
                         {msg.text && (
-                          <div className="mb-2">
+                          <div className="mb-2" mt-1>
                             {msg.sender === "Assistant" ? (
                               <ReactMarkdown>{msg.text}</ReactMarkdown>
                             ) : (
@@ -553,11 +550,10 @@ const ChatPage = () => {
                   return (
                     <div
                       key={`${msg.sender}-${idx}`}
-                      className={`p-3 rounded-lg w-fit max-w-[80%] ${
-                        msg.sender === "User"
-                          ? "ml-auto text-white bg-blue-500"
-                          : "bg-gray-200 text-black"
-                      }`}
+                      className={`p-3 rounded-lg w-fit max-w-[80%] ${msg.sender === "User"
+                        ? "ml-auto text-white bg-blue-500"
+                        : "bg-gray-200 text-black"
+                        }`}
                     >
                       {msg.sender === "Assistant" ? (
                         msg.text === "..." ? (
@@ -601,7 +597,7 @@ const ChatPage = () => {
       <div className="fixed bottom-8 w-full flex justify-center">
         <InputBar
           width="w-[65%]"
-          placeholderText="Type or paste text here... (Max. file size 4.5 MB)"
+          placeholderText="Ask anything"
           onSendStarted={() => setLoading(true)}
           onMessageSent={handleSendMessage}
           disabled={loading}
