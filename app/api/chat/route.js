@@ -27,10 +27,7 @@ function extractPDFText(buffer) {
   });
 }
 
-/**
- * Combine all stored messages into a single conversation text.
- * e.g., "User: Hello\nAssistant: Hi!\nUser: How are you?\n"
- */
+
 function combineAllChatMessagesIntoString(messages) {
   let conversationSoFar = '';
   for (const m of messages) {
@@ -44,10 +41,6 @@ function combineAllChatMessagesIntoString(messages) {
   return conversationSoFar.trim();
 }
 
-/**
- * GET /api/chat?chatId=CHAT_ID
- * Retrieve a chat by its ID. If not found, returns a 404.
- */
 export async function GET(request) {
   await connectDB();
   const { searchParams } = new URL(request.url);
@@ -67,11 +60,7 @@ export async function GET(request) {
   }
 }
 
-/**
- * POST /api/chat
- * Creates or updates a chat by appending the user's message and then invoking AI.
- * Also, if a new chat is created, calls Gemini to generate a concise title.
- */
+
 export async function POST(request) {
   await connectDB();
 
@@ -167,7 +156,6 @@ export async function POST(request) {
       }
     }
 
-    // Combine user message with any file summary
     const combinedMessage =
       messageText && finalSummary
         ? `${messageText}\n\n${finalSummary}`
@@ -179,7 +167,6 @@ export async function POST(request) {
       chat = await Chat.findById(new ObjectId(chatId));
     }
 
-    // If we didn't find a valid chat, create a new one
     if (!chat) {
       // Generate a concise history title using Gemini or fallback
       let generatedTitle = '';
@@ -240,28 +227,16 @@ If the user asks for a summary or key points (unless it is your own generated te
 Do not greet "Hello there" for each new message after the first. Just continue the conversation.
 `;
 
-    // Combine the entire conversation so far (multi-turn)
     const conversationSoFar = combineAllChatMessagesIntoString(chat.messages);
-
-    // We'll build the final prompt by concatenating:
-    // 1) teacher instructions
-    // 2) the entire conversation so far
-    // 3) the most recent user message (which is also already appended to chat.messages)
-    // But we can just rely on conversationSoFar including the last user message now
-    //
-    // The reason we do teacherInstruction + conversationSoFar is so the chain sees everything.
     const finalPrompt = `${teacherInstruction}\n${conversationSoFar}\nAssistant:`;
 
-    // Create the chain with memory (though memory is less critical since we're passing a single prompt)
     const chain = new ConversationChain({
       llm: new ChatMistralAI({ apiKey: process.env.MISTRAL_API_KEY }),
-      memory: new BufferMemory(), // We won't rely on the chain's memory to store messages
+      memory: new BufferMemory(),
     });
 
-    // Get AI response using chain
     let aiResponse;
     try {
-      // chain.call(...) returns { response: string }
       const result = await chain.call({ input: finalPrompt });
       aiResponse = result.response;
     } catch (error) {
@@ -269,11 +244,9 @@ Do not greet "Hello there" for each new message after the first. Just continue t
       return NextResponse.json({ error: 'Error generating AI response' }, { status: 500 });
     }
 
-    // Now we have the AI's reply. Append it to the DB.
     chat.messages.push({ sender: 'Assistant', text: aiResponse });
     await chat.save();
 
-    // Return the chat _id, AI response, and messages
     return NextResponse.json(
       {
         chatId: chat._id,
@@ -288,10 +261,7 @@ Do not greet "Hello there" for each new message after the first. Just continue t
   }
 }
 
-/**
- * DELETE /api/chat?chatId=CHAT_ID
- * Deletes a chat document.
- */
+
 export async function DELETE(request) {
   await connectDB();
 
@@ -318,9 +288,13 @@ export async function DELETE(request) {
   }
 
   try {
+
     const result = await Chat.deleteOne({ _id: new ObjectId(chatId) });
     if (result.deletedCount === 1) {
-      return NextResponse.json({ message: 'Chat deleted successfully' }, { status: 200 });
+      return NextResponse.json(
+        { message: 'Chat and history name deleted successfully' },
+        { status: 200 }
+      );
     } else {
       return NextResponse.json({ error: 'Chat not found' }, { status: 404 });
     }
