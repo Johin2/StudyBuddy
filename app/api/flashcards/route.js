@@ -63,8 +63,7 @@ export async function GET(request) {
     }));
     return NextResponse.json({ success: true, data: history }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching flashcard sessions:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({error}, { status: 500 });
   }
 }
 
@@ -160,8 +159,7 @@ ${extractedText}
         .trim();
       flashcardData = JSON.parse(cleanedJsonText);
     } catch (parseError) {
-      console.error('Error parsing flashcard JSON:', parseError);
-      return NextResponse.json({ error: 'Failed to parse flashcard data from LLM output' }, { status: 500 });
+      return NextResponse.json({ error: parseError}, { status: 500 });
     }
 
     // Calculate free daily sessions left.
@@ -204,8 +202,7 @@ ${extractedText}
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error generating flashcards:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error }, { status: 500 });
   }
 }
 
@@ -229,7 +226,6 @@ export async function DELETE(request) {
     await Flashcard.deleteOne({ _id: id });
     return NextResponse.json({ success: true, message: "Session deleted successfully" }, { status: 200 });
   } catch (error) {
-    console.error("Error deleting session:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error }, { status: 500 });
   }
 }

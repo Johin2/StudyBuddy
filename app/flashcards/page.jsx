@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Navbar from "../components/Navbar";
 import InputBar from "../components/InputBar";
 import ThreeDCarousel from "../components/ThreeDCarousel";
@@ -33,7 +33,6 @@ const FlashcardsPage = () => {
   }, [userId]);
 
   const deleteHistoryItem = useCallback(async (id) => {
-    console.log("Deleting session with id:", id);
     if (!id) {
       console.error("No valid id provided for deletion");
       return;
@@ -139,7 +138,7 @@ const FlashcardsPage = () => {
   if (!userId) return <div>Please log in to view your flashcards.</div>;
 
   return (
-    <div className="flex flex-col min-h-screen relative">
+    <div className="flex flex-col min-h-screen relative overflow-hidden">
       {/* Background */}
       <img
         src="/images/home-bg.svg"
@@ -151,7 +150,7 @@ const FlashcardsPage = () => {
       <Navbar className="pt-8 z-50 text-white max-md:text-black" hidden="hidden" />
 
       {/* Main Layout */}
-      <div className="flex flex-grow relative h-full">
+      <div className="flex flex-grow relative h-full overflow-hidden">
         {/* Sidebar Toggle Button */}
         <img
           src="/images/sidebar.svg"
@@ -221,7 +220,7 @@ const FlashcardsPage = () => {
         </div>
 
         {/* Center Content Area */}
-        <main className="flex-grow flex p-4 sm:p-6 justify-center items-center">
+        <main className="flex-grow flex p-4 sm:p-6 justify-center items-center overflow-hidden">
           {selectedSession ? (
             <ThreeDCarousel items={flashcards} />
           ) : (

@@ -55,8 +55,7 @@ export async function GET(request) {
     }
     return NextResponse.json({ chat }, { status: 200 });
   } catch (error) {
-    console.error('Error retrieving chat:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error }, { status: 500 });
   }
 }
 
@@ -104,7 +103,6 @@ export async function POST(request) {
           try {
             extractedText = await extractPDFText(nodeBuffer);
           } catch (err) {
-            console.error('PDF extraction error:', err);
             extractedText = '[Error extracting PDF content]';
           }
         }
@@ -114,7 +112,6 @@ export async function POST(request) {
             const result = await mammoth.extractRawText({ buffer: nodeBuffer });
             extractedText = result.value;
           } catch (err) {
-            console.error('DOCX extraction error:', err);
             extractedText = '[Error extracting DOCX content]';
           }
         }
@@ -147,7 +144,6 @@ export async function POST(request) {
           const finalRes = await genModel.generateContent(prompt);
           finalSummary = finalRes.response.text() || '';
         } catch (err) {
-          console.error('Gemini API error:', err);
           finalSummary = '[Error summarizing file content]';
         }
       } else {
@@ -182,7 +178,6 @@ export async function POST(request) {
           generatedTitle = combinedMessage.substring(0, 50);
         }
       } catch (err) {
-        console.error('Gemini title generation error:', err);
         generatedTitle = combinedMessage.substring(0, 50);
       }
 
@@ -207,7 +202,6 @@ export async function POST(request) {
             generatedTitle = combinedMessage.substring(0, 50);
           }
         } catch (err) {
-          console.error('Gemini title generation error:', err);
           generatedTitle = combinedMessage.substring(0, 50);
         }
         chat.title = generatedTitle;
@@ -240,8 +234,7 @@ Do not greet "Hello there" for each new message after the first. Just continue t
       const result = await chain.call({ input: finalPrompt });
       aiResponse = result.response;
     } catch (error) {
-      console.error('Chain invocation error:', error);
-      return NextResponse.json({ error: 'Error generating AI response' }, { status: 500 });
+      return NextResponse.json({ error }, { status: 500 });
     }
 
     chat.messages.push({ sender: 'Assistant', text: aiResponse });
@@ -256,8 +249,7 @@ Do not greet "Hello there" for each new message after the first. Just continue t
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    return NextResponse.json({ error }, { status: 400 });
   }
 }
 
@@ -299,7 +291,6 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Chat not found' }, { status: 404 });
     }
   } catch (error) {
-    console.error('Delete chat error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error }, { status: 500 });
   }
 }
