@@ -33,18 +33,23 @@ const SummarizerPage = () => {
   // Update the countdown timer if expirationTime is set
   useEffect(() => {
     if (!expirationTime) return;
+  
     const interval = setInterval(() => {
       const now = Date.now();
       const diff = expirationTime - now;
+  
       if (diff <= 0) {
         setRemainingTime(0);
         clearInterval(interval);
         setShowTimerModal(false);
         setFreeSummariesLeft(MAX_FREE_SUMMARIES);
+        localStorage.removeItem('expirationTime'); // Remove from localStorage when timer expires
+        setExpirationTime(null); // Clear the expirationTime state
       } else {
         setRemainingTime(diff);
       }
     }, 1000);
+  
     return () => clearInterval(interval);
   }, [expirationTime]);
 
@@ -189,8 +194,11 @@ const SummarizerPage = () => {
       if (!res.ok) {
         if (res.status === 403) {
           setFreeSummariesLeft(0);
-          // Set the timer modal with a 24-hour countdown
-          setExpirationTime(Date.now() + ONE_DAY_IN_MS);
+          if (!expirationTime) {
+            const newExpirationTime = Date.now() + ONE_DAY_IN_MS;
+            setExpirationTime(newExpirationTime);
+            localStorage.setItem('expirationTime', newExpirationTime.toString());
+          }
           setShowTimerModal(true);
           setErrorMessage("Daily free summaries limit reached.");
         } else {
@@ -213,8 +221,9 @@ const SummarizerPage = () => {
       displaySummary(data.summary);
       setFreeSummariesLeft(data.freeDailySummariesLeft);
 
-      if (data.freeDailySummariesLeft <= 0 && !subscription) {
-        setExpirationTime(Date.now() + ONE_DAY_IN_MS);
+      if (data.freeDailySummariesLeft <= 0 && !subscription && !expirationTime) {
+        const newExpirationTime = Date.now() + ONE_DAY_IN_MS;
+        setExpirationTime(newExpirationTime);
         setShowTimerModal(true);
       }
     } catch (error) {
@@ -223,7 +232,18 @@ const SummarizerPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [subscription]);
+  }, [subscription, expirationTime]);
+
+  // Optional: a secondary effect to always store expirationTime in localStorage
+  useEffect(() => {
+    if (expirationTime) {
+      localStorage.setItem('expirationTime', expirationTime.toString());
+      const interval = setInterval(() => {
+        // This interval can be used for additional side effects if needed.
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [expirationTime]);
 
   return (
     <>
@@ -260,7 +280,7 @@ const SummarizerPage = () => {
               <InputBar
                 width="w-full"
                 placeholderText="Summarize text"
-                onSendStarted={() => {}}
+                onSendStarted={() => { }}
                 onMessageSent={handleSendMessage}
               />
             </div>
@@ -376,7 +396,10 @@ const SummarizerPage = () => {
               <p className="mb-4">Next free summary available in:</p>
               <p className="text-2xl font-bold mb-4">{formatTime(remainingTime)}</p>
               <button
-                onClick={() => setShowTimerModal(false)}
+                onClick={() => {
+                  setShowTimerModal(false);
+                  // Do not reset expirationTime so the timer continues running
+                }}
                 className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-500"
               >
                 Close
