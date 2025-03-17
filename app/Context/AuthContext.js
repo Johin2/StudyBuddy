@@ -1,31 +1,33 @@
+// context/AuthContext.js
 'use client';
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode }from "jwt-decode"; // Fixed import: use default import
 
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // New loading state
   const router = useRouter();
 
   const logout = useCallback(() => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     setUser(null);
-    router.push('/');
+    router.push("/");
   }, [router]);
 
   const refreshAccessToken = useCallback(async () => {
-    const storedRefreshToken = localStorage.getItem('refreshToken');
+    const storedRefreshToken = localStorage.getItem("refreshToken");
     if (!storedRefreshToken) {
       logout();
       return;
     }
     try {
-      const res = await fetch('/api/refresh', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken: storedRefreshToken }),
       });
       if (!res.ok) {
@@ -44,19 +46,20 @@ export const AuthProvider = ({ children }) => {
   }, [logout]);
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const token = localStorage.getItem("accessToken");
       const refreshToken = localStorage.getItem("refreshToken");
 
       if (!refreshToken) {
         logout();
+        setLoading(false); // finish loading even if not logged in
         return;
       }
       if (token) {
         try {
           const decoded = jwtDecode(token);
           if (decoded.exp * 1000 < Date.now()) {
-            refreshAccessToken();
+            await refreshAccessToken();
           } else {
             setUser(decoded);
           }
@@ -67,6 +70,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         logout();
       }
+      setLoading(false); // Authentication check complete
     };
 
     checkAuth();
@@ -82,7 +86,7 @@ export const AuthProvider = ({ children }) => {
   }, [logout, refreshAccessToken]);
 
   const login = useCallback(async () => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     if (!token) {
       console.error("No token found in localStorage");
       return;
@@ -95,15 +99,15 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       setUser(decoded);
-      router.push('/');
+      router.push("/");
     } catch (error) {
-      console.error('Error during login in Auth context:', error);
+      console.error("Error during login in Auth context:", error);
       logout();
     }
   }, [logout, router]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

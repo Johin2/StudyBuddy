@@ -1,135 +1,163 @@
 'use client';
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import InputBar from "../components/InputBar";
 import ThreeDCarousel from "../components/ThreeDCarousel";
-
-// Sample flashcard history
-const sampleHistory = [
-  {
-    id: 1,
-    title: "Session 1",
-    date: "2023-09-01",
-    flashcards: [
-      { id: 1, content: "Flashcard 1" },
-      { id: 2, content: "Flashcard 2" },
-      { id: 3, content: "Flashcard 3" }
-    ]
-  },
-  {
-    id: 2,
-    title: "Session 2",
-    date: "2023-09-05",
-    flashcards: [
-      { id: 4, content: "Flashcard A" },
-      { id: 5, content: "Flashcard B" }
-    ]
-  },
-  {
-    id: 3,
-    title: "Session 3",
-    date: "2023-09-10",
-    flashcards: [
-      { id: 6, content: "Flashcard X" },
-      { id: 7, content: "Flashcard Y" },
-      { id: 8, content: "Flashcard Z" },
-      { id: 9, content: "Flashcard Extra" },
-      { id: 10, content: "Flashcard X" },
-      { id: 11, content: "Flashcard Y" },
-      { id: 12, content: "Flashcard Z" },
-      { id: 13, content: "Flashcard Extra" }
-    ]
-  }
-];
+import { useAuth } from "../Context/AuthContext";
 
 const FlashcardsPage = () => {
+  const { user, loading } = useAuth();
+  const userId = user?.id || user?.sub;
+  const [isloading, setLoading] = useState(false);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [flashcardHistory, setFlashcardHistory] = useState(sampleHistory);
-  const [renamingId, setRenamingId] = useState(null);
-  const [newTitle, setNewTitle] = useState("");
+  const [flashcardHistory, setFlashcardHistory] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
-
-  // Use a ref for the flashcard ID counter so it persists across renders.
-  const flashcardIdCounter = useRef(14);
 
   const toggleSidebar = useCallback(() => {
     setSidebarOpen((prev) => !prev);
   }, []);
 
-  const deleteHistoryItem = useCallback(
-    (id) => {
-      setFlashcardHistory((prevHistory) =>
-        prevHistory.filter((item) => item.id !== id)
-      );
-      if (selectedSession?.id === id) {
-        setSelectedSession(null);
-        setFlashcards([]);
+  const fetchSessions = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const response = await fetch(`/api/flashcards?userId=${userId}`);
+      const data = await response.json();
+      if (data.success) {
+        setFlashcardHistory(data.data);
       }
-    },
-    [selectedSession]
-  );
+    } catch (error) {
+      console.error("Error fetching sessions", error);
+    }
+  }, [userId]);
 
-  const enableRename = useCallback((id, currentTitle) => {
-    setRenamingId(id);
-    setNewTitle(currentTitle);
-  }, []);
-
-  const renameHistoryItem = useCallback(
-    (id) => {
-      if (!newTitle.trim()) return;
-      setFlashcardHistory((prevHistory) =>
-        prevHistory.map((item) =>
-          item.id === id ? { ...item, title: newTitle } : item
-        )
-      );
-      setRenamingId(null);
-    },
-    [newTitle]
-  );
+  const deleteHistoryItem = useCallback(async (id) => {
+    console.log("Deleting session with id:", id);
+    if (!id) {
+      console.error("No valid id provided for deletion");
+      return;
+    }
+    try {
+      const res = await fetch(`/api/flashcards?id=${id.toString()}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFlashcardHistory((prev) =>
+          prev.filter(
+            (item) => (item._id || item.id || item.sessionId) !== id
+          )
+        );
+        if (
+          selectedSession &&
+          (selectedSession._id || selectedSession.id || selectedSession.sessionId) === id
+        ) {
+          setSelectedSession(null);
+          setFlashcards([]);
+        }
+        fetchSessions();
+      } else {
+        console.error("Delete failed", data.error);
+      }
+    } catch (error) {
+      console.error("Error deleting session", error);
+    }
+  }, [selectedSession, fetchSessions]);
 
   const openSession = useCallback((session) => {
     setSelectedSession(session);
     setFlashcards(session.flashcards || []);
   }, []);
 
-  const createNewSession = useCallback(() => {
-    const newSessionId = flashcardHistory.length + 1;
-    const newSession = {
-      id: newSessionId,
-      title: `Session ${newSessionId}`,
-      date: new Date().toISOString().split("T")[0],
-      flashcards: [
-        { id: flashcardIdCounter.current++, content: "New Flashcard 1" },
-        { id: flashcardIdCounter.current++, content: "New Flashcard 2" },
-        { id: flashcardIdCounter.current++, content: "New Flashcard 3" },
-      ]
-    };
+  // Create a new session using the API.
+  const createNewSession = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const response = await fetch("/api/flashcards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          messageText: "New flashcard session",
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setFlashcardHistory((prev) => [...prev, data.data]);
+        openSession(data.data);
+      }
+    } catch (error) {
+      console.error("Error creating session", error);
+    }
+  }, [userId, openSession]);
 
-    setFlashcardHistory((prev) => [...prev, newSession]);
-    openSession(newSession);
-  }, [flashcardHistory, openSession]);
+  const handleSendMessage = useCallback(
+    async (payload) => {
+      if (!userId) return;
+      try {
+        let response;
+        if (typeof payload === "object" && payload.file) {
+          const formData = new FormData();
+          formData.append("userId", userId);
+          formData.append("messageText", payload.text);
+          formData.append("file", payload.file);
+          response = await fetch("/api/flashcards", {
+            method: "POST",
+            body: formData,
+          });
+        } else {
+          response = await fetch("/api/flashcards", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userId, messageText: payload }),
+          });
+        }
+        const data = await response.json();
+        if (data.success) {
+          setFlashcardHistory((prev) => [...prev, data.data]);
+          openSession(data.data);
+        }
+      } catch (error) {
+        console.error("Error sending message", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [userId, openSession]
+  );
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  if (loading) return null;
+  if (!userId) return <div>Please log in to view your flashcards.</div>;
 
   return (
     <div className="flex flex-col min-h-screen relative">
       {/* Background */}
       <img
         src="/images/home-bg.svg"
-        alt="backdrop"
+        alt="Backdrop"
         className="absolute inset-0 -z-10 w-full h-full object-cover"
       />
 
       {/* Navbar */}
-      <Navbar hidden="hidden" className="pt-8 z-50 text-white" />
+      <Navbar className="pt-8 z-50 text-white" hidden="hidden" />
 
       {/* Main Layout */}
       <div className="flex flex-grow relative h-full">
         {/* Sidebar Toggle Button */}
         <img
           src="/images/sidebar.svg"
-          alt="sidebar"
+          alt="Toggle sidebar"
           onClick={toggleSidebar}
-          className="w-9 h-9 absolute invert top-8 left-4 cursor-pointer transition-all duration-300 z-20"
+          className="w-9 h-9 absolute invert top-8 left-4 cursor-pointer transition-all duration-300 z-50"
         />
 
         {/* Sidebar */}
@@ -143,67 +171,37 @@ const FlashcardsPage = () => {
               {/* Sidebar Close Button */}
               <img
                 src="/images/sidebar.svg"
-                alt="sidebar"
+                alt="Close sidebar"
                 onClick={toggleSidebar}
                 className="w-9 h-9 absolute invert top-8 left-4 cursor-pointer transition-all duration-300"
               />
 
               <h2 className="text-lg m-2 font-semibold">Flashcard History</h2>
 
-              {/* New Flashcard Button */}
-              <div
-                className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-500 bg-gray-700 rounded-md mb-4"
-                onClick={createNewSession}
-              >
-                <img
-                  src="/images/new-chat.svg"
-                  alt="New Flashcard"
-                  className="w-6 h-6 filter invert"
-                />
-                <span>New Flashcard</span>
-              </div>
-
               {/* List of Previous Flashcard Sessions */}
               <ul>
                 {flashcardHistory.length > 0 ? (
-                  flashcardHistory.map((session) => (
+                  flashcardHistory.map((session, index) => (
                     <li
-                      key={session.id}
+                      key={session._id || session.id || index}
                       className={`p-2 flex justify-between items-center hover:bg-gray-700 rounded-md mb-2 cursor-pointer ${
-                        selectedSession?.id === session.id ? "bg-gray-600" : ""
+                        selectedSession &&
+                        (selectedSession._id === session._id ||
+                          selectedSession.id === session.id)
+                          ? "bg-gray-600"
+                          : ""
                       }`}
                       onClick={() => openSession(session)}
                     >
-                      {renamingId === session.id ? (
-                        <input
-                          type="text"
-                          value={newTitle}
-                          onChange={(e) => setNewTitle(e.target.value)}
-                          onBlur={() => renameHistoryItem(session.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") renameHistoryItem(session.id);
-                          }}
-                          className="bg-gray-800 text-white border-none outline-none p-1 rounded-md w-[80%]"
-                          autoFocus
-                        />
-                      ) : (
-                        <span
-                          onDoubleClick={(e) => {
-                            e.stopPropagation();
-                            enableRename(session.id, session.title);
-                          }}
-                          className="cursor-pointer"
-                        >
-                          {session.title}
-                        </span>
-                      )}
-
+                      <span className="cursor-pointer">{session.title}</span>
                       {/* Delete Button */}
                       <button
+                        style={{ flexShrink: 0 }}
                         className="ml-2 transition-all duration-300 hover:text-red-500"
                         onClick={(e) => {
                           e.stopPropagation();
-                          deleteHistoryItem(session.id);
+                          const sessionId = session._id || session.id || session.sessionId;
+                          deleteHistoryItem(sessionId);
                         }}
                       >
                         <img
@@ -215,9 +213,7 @@ const FlashcardsPage = () => {
                     </li>
                   ))
                 ) : (
-                  <p className="text-gray-400 text-sm mt-4">
-                    No history available
-                  </p>
+                  <p className="text-gray-400 text-sm mt-4">No history available</p>
                 )}
               </ul>
             </div>
@@ -225,11 +221,11 @@ const FlashcardsPage = () => {
         </div>
 
         {/* Center Content Area */}
-        <main className="flex-grow flex p-6 justify-center items-center">
+        <main className="flex-grow flex p-4 sm:p-6 justify-center items-center">
           {selectedSession ? (
             <ThreeDCarousel items={flashcards} />
           ) : (
-            <p className="text-gray-500">
+            <p className="text-gray-500 text-center">
               Select a session to view flashcards.
             </p>
           )}
@@ -237,16 +233,19 @@ const FlashcardsPage = () => {
       </div>
 
       {/* Bottom InputBar */}
-      <div className="w-full mb-2 flex justify-center items-center">
-        <div className="w-[65%]">
+      <div className="w-full mb-2 flex justify-center items-center p-4">
+        <div className="w-full flex justify-center items-center max-w-4xl px-2 sm:px-0">
           <InputBar
-            className="w-[65%]"
-            placeholderText="Type or paste text here..."
+            width="w-full sm:w-[65%]"
+            placeholderText="Flashcard topic"
+            onSendStarted={() => setLoading(true)}
+            onMessageSent={handleSendMessage}
+            disabled={isloading}
           />
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default FlashcardsPage;

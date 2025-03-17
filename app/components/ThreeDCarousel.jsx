@@ -1,23 +1,50 @@
-"use client";
+'use client';
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 
+// Custom hook to get window dimensions
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 1024,
+    height: typeof window !== "undefined" ? window.innerHeight : 768,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowSize;
+}
+
 export default function ThreeDCarousel({ items = [] }) {
-  // Local state to track which card is front and center
+  // Limit the items to a maximum of 12
+  const limitedItems = useMemo(() => items.slice(0, 12), [items]);
   const [stepIndex, setStepIndex] = useState(0);
 
-  // Reset carousel index when items change
   useEffect(() => {
     setStepIndex(0);
-  }, [items]);
+  }, [limitedItems]);
 
-  const itemWidth = 250;
-  const itemHeight = 350;
-  const distanceZ = 500;
+  // Responsive calculations based on window width
+  const { width } = useWindowSize();
+  // For smaller screens, use a percentage of the viewport; otherwise use fixed dimensions.
+  const itemWidth = useMemo(() => (width < 640 ? width * 0.8 : 250), [width]);
+  const itemHeight = useMemo(() => (width < 640 ? itemWidth * 1.4 : 350), [width, itemWidth]);
+  const distanceZ = useMemo(() => itemWidth * 2, [itemWidth]);
 
   // Calculate the angle between each item
-  const itemAngle = useMemo(() => (items.length ? 360 / items.length : 0), [items]);
+  const itemAngle = useMemo(
+    () => (limitedItems.length ? 360 / limitedItems.length : 0),
+    [limitedItems]
+  );
 
-  // Memoized handlers to navigate carousel
+  // Navigation handlers
   const handleNext = useCallback(() => {
     setStepIndex((prev) => prev + 1);
   }, []);
@@ -26,7 +53,7 @@ export default function ThreeDCarousel({ items = [] }) {
     setStepIndex((prev) => prev - 1);
   }, []);
 
-  // Memoize carousel container style
+  // Carousel container style updated for responsive dimensions
   const carouselStyle = useMemo(
     () => ({
       position: "relative",
@@ -36,15 +63,15 @@ export default function ThreeDCarousel({ items = [] }) {
       transition: "transform 1s ease",
       transform: `translateZ(-${distanceZ}px) rotateY(${-stepIndex * itemAngle}deg)`,
     }),
-    [stepIndex, itemAngle]
+    [stepIndex, itemAngle, itemWidth, itemHeight, distanceZ]
   );
 
-  // Memoize rendered items
+  // Render carousel items
   const renderItems = useMemo(
     () =>
-      items.map((item, i) => (
+      limitedItems.map((item, i) => (
         <div
-          key={item.id}
+          key={item.id || i}
           style={{
             position: "absolute",
             width: `${itemWidth}px`,
@@ -58,23 +85,61 @@ export default function ThreeDCarousel({ items = [] }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            textAlign: "center",
-            fontSize: "1.2rem",
+            padding: "1rem",
+            color: "#000",
           }}
         >
-          {item.content}
+          {/* Bookmark badge */}
+          <div
+            style={{
+              position: "absolute",
+              top: "0.5rem",
+              right: "0.5rem",
+              backgroundColor: "orange",
+              color: "white",
+              borderRadius: "50%",
+              width: "2rem",
+              height: "2rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "0.9rem",
+              fontWeight: "bold",
+            }}
+          >
+            {i + 1}
+          </div>
+          {typeof item === "string" ? (
+            <div style={{ textAlign: "left", width: "100%" }}>{item}</div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+                textAlign: "left",
+                width: "100%",
+              }}
+            >
+              <div className="text-xl font-semibold">
+                Question: {item.question}
+              </div>
+              <div className="text-lg font-medium">
+                Ans: {item.answer}
+              </div>
+            </div>
+          )}
         </div>
       )),
-    [items, itemAngle]
+    [limitedItems, itemAngle, itemWidth, itemHeight, distanceZ]
   );
 
   return (
     <div style={{ perspective: "1000px" }} className="flex flex-col items-center">
-      {/* 3D Carousel Container */}
+      {/* Carousel Container */}
       <div style={carouselStyle}>{renderItems}</div>
-
-      {/* Prev / Next Buttons */}
-      {items.length > 1 && (
+      {/* Navigation Buttons */}
+      {limitedItems.length > 1 && (
         <div className="mt-4 flex gap-2">
           <button
             onClick={handlePrev}
