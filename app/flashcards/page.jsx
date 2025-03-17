@@ -148,7 +148,7 @@ const FlashcardsPage = () => {
       />
 
       {/* Navbar */}
-      <Navbar className="pt-8 z-50 text-white" hidden="hidden" />
+      <Navbar className="pt-8 z-50 text-white max-md:text-black" hidden="hidden" />
 
       {/* Main Layout */}
       <div className="flex flex-grow relative h-full">
