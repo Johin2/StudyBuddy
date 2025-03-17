@@ -19,13 +19,18 @@ const FlashcardsPage = () => {
 
   // Initialize freeSessionsLeft to FREE_LIMIT
   const [freeSessionsLeft, setFreeSessionsLeft] = useState(FREE_LIMIT);
-  const [expirationTime, setExpirationTime] = useState(
-    localStorage.getItem("flashcardsExpirationTime")
-      ? parseInt(localStorage.getItem("flashcardsExpirationTime"), 10)
-      : null
-  );
+  // Start expirationTime as null to avoid server-side localStorage access
+  const [expirationTime, setExpirationTime] = useState(null);
   const [remainingTime, setRemainingTime] = useState(0);
   const [showTimerModal, setShowTimerModal] = useState(false);
+
+  // Load expirationTime from localStorage on the client side
+  useEffect(() => {
+    const storedExpirationTime = localStorage.getItem("flashcardsExpirationTime");
+    if (storedExpirationTime) {
+      setExpirationTime(parseInt(storedExpirationTime, 10));
+    }
+  }, []);
 
   // Function to format milliseconds into HH:MM:SS
   const formatTime = (milliseconds) => {
