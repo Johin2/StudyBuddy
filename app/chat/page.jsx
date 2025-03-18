@@ -524,7 +524,7 @@ const ChatPage = () => {
                       <div
                         key={`${msg.sender}-${idx}`}
                         className={`p-3 rounded-lg w-fit max-w-[80%] ${msg.sender === "User"
-                          ? "ml-auto text-white bg-blue-500"
+                          ? " text-white bg-blue-500"
                           : "bg-gray-200 text-black"
                           }`}
                       >
