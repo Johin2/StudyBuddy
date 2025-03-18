@@ -511,7 +511,7 @@ const deleteChat = useCallback(
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex flex-grow w-full overflow-y-auto pb-12 custom-scrollbar relative">
+        <div className="flex flex-grow w-full overflow-y-auto pb-24 custom-scrollbar relative">
           {selectedChat && selectedChat.messages.length > 0 ? (
             <div
               className="w-full flex flex-col overflow-auto custom-scrollbar my-16 items-center justify-center"
