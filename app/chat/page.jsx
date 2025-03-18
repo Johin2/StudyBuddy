@@ -176,53 +176,53 @@ const ChatPage = () => {
   }, []);
 
   // Delete chat
-  const deleteChat = useCallback(
-    async (chatId) => {
-      // If chatId is not 24 characters, treat it as local-only
-      if (!(chatId && chatId.length === 24)) {
-        const updatedHistory = chatHistory.filter(
-          (chat) => chat.id !== chatId && chat._id !== chatId
-        );
-        setChatHistory(updatedHistory);
-        if (
-          selectedChat &&
-          (selectedChat.id === chatId || selectedChat._id === chatId)
-        ) {
-          setSelectedChat(null);
-          localStorage.removeItem("selectedChat");
-        }
+const deleteChat = useCallback(
+  async (chatId) => {
+    // If chatId is not 24 characters, treat it as local-only
+    if (!(chatId && chatId.length === 24)) {
+      const updatedHistory = chatHistory.filter(
+        (chat) => chat.id !== chatId && chat._id !== chatId
+      );
+      setChatHistory(updatedHistory);
+      if (
+        selectedChat &&
+        (selectedChat.id === chatId || selectedChat._id === chatId)
+      ) {
+        setSelectedChat(null);
+        localStorage.removeItem("selectedChat");
+      }
+      return;
+    }
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return;
+      const response = await fetch(`/api/chat?chatId=${chatId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        setErrorMessage("Failed to delete chat from server");
         return;
       }
-      try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) return;
-        const response = await fetch(`/api/chat?chatId=${chatId}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) {
-          setErrorMessage("Failed to delete chat from server");
-          return;
-        }
-        const updatedHistory = chatHistory.filter(
-          (chat) => chat.id !== chatId && chat._id !== chatId
-        );
-        setChatHistory(updatedHistory);
-        if (
-          selectedChat &&
-          (selectedChat.id === chatId || selectedChat._id === chatId)
-        ) {
-          setSelectedChat(null);
-          localStorage.removeItem("selectedChat");
-        }
-      } catch (error) {
-        console.error("Delete chat error:", error);
-        setErrorMessage("Error deleting chat");
+      const updatedHistory = chatHistory.filter(
+        (chat) => chat.id !== chatId && chat._id !== chatId
+      );
+      setChatHistory(updatedHistory);
+      if (
+        selectedChat &&
+        (selectedChat.id === chatId || selectedChat._id === chatId)
+      ) {
+        setSelectedChat(null);
+        localStorage.removeItem("selectedChat");
       }
-    },
-    [chatHistory, selectedChat]
-  );
-  
+    } catch (error) {
+      console.error("Delete chat error:", error);
+      setErrorMessage("Error deleting chat");
+    }
+  },
+  [chatHistory, selectedChat]
+);
+
   // Rename chat
   const saveChatTitle = useCallback(
     (chatId, newTitle) => {
@@ -511,20 +511,20 @@ const ChatPage = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex flex-grow w-full overflow-y-auto pb-24 justify-center custom-scrollbar relative">
+        <div className="flex flex-grow w-full overflow-y-auto pb-12 custom-scrollbar relative">
           {selectedChat && selectedChat.messages.length > 0 ? (
             <div
               className="w-full flex flex-col overflow-auto custom-scrollbar my-16 items-center justify-center"
               ref={messagesInnerRef}
             >
-              <div className="flex flex-col mb-12 space-y-3 w-full px-2 md:px-0 sm:w-1/2 max-h-[80vh]">
+              <div className="flex flex-col space-y-3 w-full px-2 md:px-0 sm:w-1/2 max-h-[80vh]">
                 {selectedChat.messages.map((msg, idx) => {
                   if (msg.isFile) {
                     return (
                       <div
                         key={`${msg.sender}-${idx}`}
                         className={`p-3 rounded-lg w-fit max-w-[80%] ${msg.sender === "User"
-                          ? " text-white bg-blue-500"
+                          ? "ml-auto text-white bg-blue-500"
                           : "bg-gray-200 text-black"
                           }`}
                       >
@@ -600,8 +600,9 @@ const ChatPage = () => {
       </div>
 
       {/* Input at the Bottom */}
-      <div className="fixed bottom-8 w-full flex justify-center ">
+      <div className="fixed bottom-8 w-full flex justify-center">
         <InputBar
+          width="w-[65%]"
           placeholderText="Ask anything"
           onSendStarted={() => setLoading(true)}
           onMessageSent={handleSendMessage}
