@@ -20,6 +20,7 @@
     "@upstash/qstash": "^2.7.22",
     "@upstash/redis": "^1.34.5",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "formidable": "^3.5.2",

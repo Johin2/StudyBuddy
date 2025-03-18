@@ -4,6 +4,7 @@ import Hero from "./components/Hero";
 import { useAuth } from "./Context/AuthContext";
 import AuthModal from "./components/Modal";
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export default function Home() {
   const { user, login, logout } = useAuth();
@@ -18,6 +19,7 @@ export default function Home() {
       <main className="flex flex-grow items-center justify-center">
           <Hero login={openModal} isUser={user} />
           <Analytics/>
+          <SpeedInsights/>
       </main>
 
       <AuthModal isOpen={modalOpen} onClose={closeModal} />
