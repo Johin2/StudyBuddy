@@ -511,13 +511,13 @@ const ChatPage = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex flex-grow w-full overflow-y-auto pb-12 custom-scrollbar relative">
+        <div className="flex flex-grow w-full overflow-y-auto pb-24 custom-scrollbar relative">
           {selectedChat && selectedChat.messages.length > 0 ? (
             <div
               className="w-full flex flex-col overflow-auto custom-scrollbar my-16 items-center justify-center"
               ref={messagesInnerRef}
             >
-              <div className="flex flex-col space-y-3 w-full px-2 md:px-0 sm:w-1/2 max-h-[80vh]">
+              <div className="flex flex-col mb-12 space-y-3 w-full px-2 md:px-0 sm:w-1/2 max-h-[80vh]">
                 {selectedChat.messages.map((msg, idx) => {
                   if (msg.isFile) {
                     return (
@@ -600,7 +600,7 @@ const ChatPage = () => {
       </div>
 
       {/* Input at the Bottom */}
-      <div className="fixed bottom-8 w-full flex justify-center">
+      <div className="fixed bottom-8 w-full flex justify-center ">
         <InputBar
           placeholderText="Ask anything"
           onSendStarted={() => setLoading(true)}
