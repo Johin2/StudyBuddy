@@ -181,10 +181,13 @@ const ChatPage = () => {
       // If chatId is not 24 characters, treat it as local-only
       if (!(chatId && chatId.length === 24)) {
         const updatedHistory = chatHistory.filter(
-          (chat) => (chat._id || chat.id) !== chatId
+          (chat) => chat.id !== chatId && chat._id !== chatId
         );
         setChatHistory(updatedHistory);
-        if ((selectedChat?._id || selectedChat?.id) === chatId) {
+        if (
+          selectedChat &&
+          (selectedChat.id === chatId || selectedChat._id === chatId)
+        ) {
           setSelectedChat(null);
           localStorage.removeItem("selectedChat");
         }
@@ -202,10 +205,13 @@ const ChatPage = () => {
           return;
         }
         const updatedHistory = chatHistory.filter(
-          (chat) => (chat._id || chat.id) !== chatId
+          (chat) => chat.id !== chatId && chat._id !== chatId
         );
         setChatHistory(updatedHistory);
-        if ((selectedChat?._id || selectedChat?.id) === chatId) {
+        if (
+          selectedChat &&
+          (selectedChat.id === chatId || selectedChat._id === chatId)
+        ) {
           setSelectedChat(null);
           localStorage.removeItem("selectedChat");
         }
@@ -216,7 +222,7 @@ const ChatPage = () => {
     },
     [chatHistory, selectedChat]
   );
-
+  
   // Rename chat
   const saveChatTitle = useCallback(
     (chatId, newTitle) => {
@@ -596,7 +602,6 @@ const ChatPage = () => {
       {/* Input at the Bottom */}
       <div className="fixed bottom-8 w-full flex justify-center">
         <InputBar
-          width="w-[65%]"
           placeholderText="Ask anything"
           onSendStarted={() => setLoading(true)}
           onMessageSent={handleSendMessage}

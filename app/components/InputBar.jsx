@@ -74,7 +74,7 @@ const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabl
 
   return (
     <div
-      className={`flex flex-col w-[90%] md:${width} p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-blue-500" : "border-gray-300"
+      className={`flex flex-col max-sm:w-[90%] md:w-[65%] p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-blue-500" : "border-gray-300"
         }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
