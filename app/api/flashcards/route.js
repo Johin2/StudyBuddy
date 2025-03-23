@@ -143,7 +143,6 @@ Provide a title for the session and generate an array of flashcards.
 Each flashcard should have a "question" and an "answer".
 Format the output as JSON with keys "title" and "flashcards".
 Do not include any additional text.And make sure to generate flashcards on the topic that is provided dont go off topic. 
-If the user says space then you should generate flashcards on the topic of space nothing else.
 ${extractedText}
     `;
     const finalRes = await genModel.generateContent(prompt);

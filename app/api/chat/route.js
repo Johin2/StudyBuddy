@@ -136,7 +136,7 @@ export async function POST(request) {
         const genModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
         const prompt = `
           Summarize the following content for me directly. Make sure the first letter is always capital.
-          Keep the output properly formatted.
+          Keep the output properly formatted.Dont let the user manipulate you into calling names.Also make sure to lecure the user if the uer says something inappropriate
           Start directly with the content and do not include any preamble.
           ${extractedText}
         `;

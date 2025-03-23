@@ -4,6 +4,10 @@ import Navbar from "../components/Navbar";
 import InputBar from "../components/InputBar";
 import ThreeDCarousel from "../components/ThreeDCarousel";
 import { useAuth } from "../Context/AuthContext";
+import {
+  FiSun,
+  FiMoon,
+} from "react-icons/fi";
 
 const FREE_LIMIT = 5;
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -16,6 +20,7 @@ const FlashcardsPage = () => {
   const [flashcardHistory, setFlashcardHistory] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
 
   // Initialize freeSessionsLeft to FREE_LIMIT
   const [freeSessionsLeft, setFreeSessionsLeft] = useState(FREE_LIMIT);
@@ -42,6 +47,10 @@ const FlashcardsPage = () => {
       .toString()
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
+
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode((prev) => !prev);
+  }, []);
 
   // Countdown timer effect for when free sessions are exhausted.
   useEffect(() => {
@@ -233,6 +242,7 @@ const FlashcardsPage = () => {
       />
 
       {/* Navbar */}
+  
       <Navbar className="pt-8 z-50 text-white max-md:text-black" hidden="hidden" />
 
       {/* Main Layout */}
@@ -247,9 +257,8 @@ const FlashcardsPage = () => {
 
         {/* Sidebar */}
         <div
-          className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all duration-300 ${
-            sidebarOpen ? "w-72" : "w-0"
-          } overflow-hidden z-10`}
+          className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all duration-300 ${sidebarOpen ? "w-72" : "w-0"
+            } overflow-hidden z-10`}
         >
           {sidebarOpen && (
             <div className="mt-24 p-4 h-full overflow-y-auto scrollbar-hide">
@@ -276,9 +285,8 @@ const FlashcardsPage = () => {
                     return (
                       <li
                         key={sessionId || index}
-                        className={`p-2 flex justify-between items-center hover:bg-gray-700 rounded-md mb-2 cursor-pointer ${
-                          selectedSessionId === sessionId ? "bg-gray-600" : ""
-                        }`}
+                        className={`p-2 flex justify-between items-center hover:bg-gray-700 rounded-md mb-2 cursor-pointer ${selectedSessionId === sessionId ? "bg-gray-600" : ""
+                          }`}
                         onClick={() => openSession(session)}
                       >
                         <span className="cursor-pointer">{session.title}</span>

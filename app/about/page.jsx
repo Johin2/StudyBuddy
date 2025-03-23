@@ -8,7 +8,7 @@ const AboutUs = () => {
 
   return (
     <>
-      <Navbar className="text-black relative" hidden = "max-sm:hidden"/>
+      <Navbar className="text-black relative" hidden="max-sm:hidden" />
       <section className="py-4 px-4 md:px-8 bg-white">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -17,11 +17,11 @@ const AboutUs = () => {
               About StudyBuddy
             </h1>
             <p className="mt-4 text-md md:text-lg text-marsOrange font-semibold">
-              Study Smarter, Not Harder – With AI-Powered Learning!
+              Empowering Smarter Study Habits with AI-Driven Tools
             </p>
           </header>
 
-          {/* Mission & What We Offer */}
+          {/* Mission & Services */}
           <div className="space-y-8">
             {/* Our Mission */}
             <div>
@@ -29,82 +29,71 @@ const AboutUs = () => {
                 Our Mission
               </h2>
               <p className="mt-2 text-gray-700">
-                At StudyBuddy, we believe that studying should be efficient,
-                engaging, and stress-free. Our mission is to empower students with
-                AI-driven tools that simplify note-taking, enhance memory retention,
-                and foster collaborative learning.
+                At StudyBuddy, we are committed to revolutionizing the learning experience. Our mission is to provide innovative, AI-powered solutions that streamline note-taking, enhance memory retention, and promote collaborative learning.
               </p>
             </div>
 
-            {/* What We Offer */}
+            {/* Our Services */}
             <div>
               <h2 className="text-xl md:text-2xl font-bold" style={{ color: "#219EBC" }}>
-                What We Offer
+                Our Services
               </h2>
               <ul className="mt-2 list-disc ml-6 text-gray-700 space-y-2">
                 <li>
-                  <span className="font-bold">AI Summarization:</span> Instantly summarize your notes and articles.
+                  <span className="font-bold">AI Summarization:</span> Generate concise summaries of your notes and articles instantly.
                 </li>
                 <li>
-                  <span className="font-bold">Flashcards Generator:</span> Create smart flashcards for easy revision.
+                  <span className="font-bold">Flashcards Generator:</span> Transform your study materials into interactive flashcards effortlessly.
                 </li>
                 <li>
-                  <span className="font-bold">StudyGPT Chatbot:</span> Get instant explanations & answers.
+                  <span className="font-bold">StudyGPT Chatbot:</span> Receive prompt, detailed explanations and answers to your academic queries.
                 </li>
               </ul>
             </div>
 
-            {/* How to Use Each Feature */}
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold" style={{ color: "#219EBC" }}>
+            <h2 className="text-xl md:text-2xl font-bold" style={{ color: "#219EBC" }}>
                 How to Use StudyBuddy
               </h2>
 
+            {/* How to Use StudyBuddy */}
+            <div className="flex max-sm:flex-col md:space-x-3">
+
               {/* AI Summarization */}
-              <div className="mt-6">
+              <div className="mt-2">
                 <h3 className="text-lg md:text-xl font-semibold text-marsOrange">
-                  📝 AI Summarization
+                  AI Summarization
                 </h3>
                 <p className="text-gray-700">
-                  <span className="font-bold">1️⃣ Go to Summarizer Page:</span> /summarizer
-                  <br />
-                  <span className="font-bold">2️⃣ Upload a PDF or Paste Text:</span> Choose any content to summarize.
-                  <br />
-                  <span className="font-bold">3️⃣ Click "Summarize":</span> AI generates a short summary.
-                  <br />
-                  <span className="font-bold">4️⃣ Save or Copy:</span> Use it for quick revision!
+                  <strong>Step 1:</strong> Navigate to the Summarizer page: <code>/summarizer</code><br />
+                  <strong>Step 2:</strong> Upload a PDF or paste the desired text.<br />
+                  <strong>Step 3:</strong> Click "Summarize" to generate a brief summary.<br />
+                  <strong>Step 4:</strong> Save or copy the summary for further reference.
                 </p>
               </div>
 
-              {/* Flashcards */}
-              <div className="mt-6">
+              {/* Flashcards Generator */}
+              <div className="mt-2">
                 <h3 className="text-lg md:text-xl font-semibold text-marsOrange">
-                  🎴 Flashcards Generator
+                  Flashcards Generator
                 </h3>
                 <p className="text-gray-700">
-                  <span className="font-bold">1️⃣ Go to Flashcards Page:</span> /flashcards
-                  <br />
-                  <span className="font-bold">2️⃣ Enter or Upload Notes:</span> StudyBuddy converts notes into flashcards.
-                  <br />
-                  <span className="font-bold">3️⃣ Click "Generate":</span> AI creates key questions & answers.
-                  <br />
-                  <span className="font-bold">4️⃣ Review & Track Progress:</span> Mark flashcards as known or needs review.
+                  <strong>Step 1:</strong> Go to the Flashcards page: <code>/flashcards</code><br />
+                  <strong>Step 2:</strong> Enter or upload your study notes.<br />
+                  <strong>Step 3:</strong> Click "Generate" to create interactive flashcards.<br />
+                  <strong>Step 4:</strong> Review the cards and track your progress.
                 </p>
               </div>
 
               {/* StudyGPT Chatbot */}
-              <div className="mt-6">
+              <div className="mt-2">
                 <h3 className="text-lg md:text-xl font-semibold text-marsOrange">
-                  🤖 StudyGPT Chatbot
+                  StudyGPT Chatbot
                 </h3>
                 <p className="text-gray-700">
-                  <span className="font-bold">1️⃣ Go to Chat Page:</span> /chat
-                  <br />
-                  <span className="font-bold">2️⃣ Ask a Question:</span> Type any study-related query.
-                  <br />
-                  <span className="font-bold">3️⃣ Get Instant Explanations:</span> StudyGPT provides clear step-by-step answers.
-                  <br />
-                  <span className="font-bold">4️⃣ Follow Up:</span> Ask more questions for deeper learning.
+                  <strong>Step 1:</strong> Visit the Chat page: <code>/chat</code><br />
+                  <strong>Step 2:</strong> Submit your academic query.<br />
+                  <strong>Step 3:</strong> Receive detailed, step-by-step explanations.<br />
+                  <strong>Step 4:</strong> Follow up with additional questions as needed.
                 </p>
               </div>
             </div>
@@ -119,11 +108,9 @@ const AboutUs = () => {
                   <img src="/images/my-img.jpeg" alt="Creator" className="rounded-full" />
                 </div>
                 <p className="mt-2 font-semibold text-gray-800">Johin Arimbur</p>
-                <p className="text-gray-600">Founder & Developer</p>
+                <p className="text-gray-600">Developer</p>
                 <p className="mt-2 text-center max-w-md text-gray-700">
-                  I built StudyBuddy to make learning{" "}
-                  <span className="font-bold">easier, faster, and smarter</span>. My goal is to{" "}
-                  <span className="font-bold">help students</span> organize their studies with AI-powered tools.
+                  I created StudyBuddy with the vision of transforming the learning experience through innovative, AI-driven tools. My goal is to empower students to study more efficiently and effectively.
                 </p>
                 <div className="mt-4 flex space-x-4">
                   <a
@@ -151,7 +138,7 @@ const AboutUs = () => {
                 className="px-6 py-3 rounded-lg font-bold bg-marsOrange text-white"
                 onClick={() => router.push("/about/contact")}
               >
-                Contact Me
+                Contact
               </button>
             </div>
           </div>
