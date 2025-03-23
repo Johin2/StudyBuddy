@@ -47,8 +47,6 @@ export async function GET(request) {
     // Retrieve sessions (each document represents one flashcard session)
     const sessions = await Flashcard.find(query).sort({ createdAt: -1 });
     // Transform each session so that the client gets the expected fields:
-    // - title (from question)
-    // - flashcards (by parsing the answer JSON string)
     const history = sessions.map((doc) => ({
       _id: doc._id,
       title: doc.question,
@@ -61,9 +59,27 @@ export async function GET(request) {
       })(),
       createdAt: doc.createdAt,
     }));
-    return NextResponse.json({ success: true, data: history }, { status: 200 });
+
+    // Retrieve FREE_LIMIT from settings (default to 5 if not found)
+    const settingsDoc = await Settings.findOne();
+    const FREE_LIMIT = settingsDoc ? settingsDoc.freeLimit : 5;
+
+    // Compute daily count – count ALL sessions created today (even if later deleted)
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    const dailyCount = await Flashcard.countDocuments({
+      userId,
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    });
+    const freeDailySessionsLeft = FREE_LIMIT - dailyCount;
+
+    return NextResponse.json(
+      { success: true, data: { history, freeDailySessionsLeft } },
+      { status: 200 }
+    );
   } catch (error) {
-    return NextResponse.json({error}, { status: 500 });
+    return NextResponse.json({ error }, { status: 500 });
   }
 }
 
@@ -126,9 +142,9 @@ export async function POST(request) {
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     const dailyCount = await Flashcard.countDocuments({
       userId,
-      isDeleted: { $ne: true },
       createdAt: { $gte: startOfDay, $lte: endOfDay },
     });
+    
     if (dailyCount >= FREE_LIMIT) {
       return NextResponse.json({ error: "Daily free flashcard sessions limit reached" }, { status: 403 });
     }
@@ -221,10 +237,11 @@ export async function DELETE(request) {
     if (!session) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
-    // Permanently delete the session from the database
-    await Flashcard.deleteOne({ _id: id });
+    // Mark the session as deleted rather than physically deleting it
+    await Flashcard.updateOne({ _id: id }, { $set: { isDeleted: true } });
     return NextResponse.json({ success: true, message: "Session deleted successfully" }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error }, { status: 500 });
   }
 }
+

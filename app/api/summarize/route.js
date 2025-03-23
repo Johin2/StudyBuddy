@@ -139,7 +139,8 @@ export async function POST(request) {
         ${finalSummary}
       `;
       const historyPrompt = `
-        Generate a concise preview (4-5 words) for the following summary:
+        Provide a single, concise preview for the following summary.
+        The preview should be exactly 4 to 5 words, with no extra formatting or bullet points. Only output the preview text.
         ${finalSummary}
       `;
       const [keyPointsRes, historyRes] = await Promise.all([

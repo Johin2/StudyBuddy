@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useRef, useCallback } from 'react';
-import { FiFileText, FiX } from 'react-icons/fi';
+import { FiFileText, FiX, FiLoader } from 'react-icons/fi';
 
 const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabled }) => {
   const [text, setText] = useState("");
@@ -68,14 +68,9 @@ const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabl
     }
   }, [text, file, onMessageSent, onSendStarted]);
 
-  if (disabled) {
-    // Optionally, you can adjust the component's behavior when disabled
-  }
-
   return (
     <div
-      className={`flex flex-col max-sm:w-[90%] md:w-[65%] p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-blue-500" : "border-gray-300"
-        }`}
+      className={`flex flex-col max-sm:w-[90%] md:w-[65%] p-3 bg-white rounded-lg shadow-md border ${dragging ? "border-blue-500" : "border-gray-300"}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -111,10 +106,9 @@ const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabl
         <button
           onClick={handleSend}
           disabled={disabled}
-          className={`p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition ${disabled ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+          className={`p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          Send
+          {disabled ? <FiLoader className="animate-spin" /> : "Send"}
         </button>
       </div>
       <p className="block text-xs text-gray-500 mt-2">
@@ -126,7 +120,7 @@ const InputBar = ({ width, placeholderText, onSendStarted, onMessageSent, disabl
 
       {/* Render file bubble only if a file exists */}
       {file && (
-        <div className="mt-3 inline-flex justify-between  items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
+        <div className="mt-3 inline-flex justify-between items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
           <div className='flex justify-center items-center space-x-4'>
             <div className="flex items-center justify-center w-6 h-6 rounded-full bg-pink-200 text-pink-700">
               <FiFileText className="text-sm" />

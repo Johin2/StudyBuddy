@@ -1,13 +1,10 @@
 'use client';
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Navbar from "../components/Navbar";
 import InputBar from "../components/InputBar";
 import ThreeDCarousel from "../components/ThreeDCarousel";
 import { useAuth } from "../Context/AuthContext";
-import {
-  FiSun,
-  FiMoon,
-} from "react-icons/fi";
+import { FiSun, FiMoon } from "react-icons/fi";
 
 const FREE_LIMIT = 5;
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -22,14 +19,13 @@ const FlashcardsPage = () => {
   const [flashcards, setFlashcards] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
 
-  // Initialize freeSessionsLeft to FREE_LIMIT
+  // Free sessions count remains unchanged on deletion.
   const [freeSessionsLeft, setFreeSessionsLeft] = useState(FREE_LIMIT);
-  // Start expirationTime as null to avoid server-side localStorage access
   const [expirationTime, setExpirationTime] = useState(null);
   const [remainingTime, setRemainingTime] = useState(0);
   const [showTimerModal, setShowTimerModal] = useState(false);
 
-  // Load expirationTime from localStorage on the client side
+  // Load expirationTime from localStorage on client
   useEffect(() => {
     const storedExpirationTime = localStorage.getItem("flashcardsExpirationTime");
     if (storedExpirationTime) {
@@ -37,22 +33,19 @@ const FlashcardsPage = () => {
     }
   }, []);
 
-  // Function to format milliseconds into HH:MM:SS
   const formatTime = (milliseconds) => {
     const totalSeconds = Math.floor(milliseconds / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    return `${hours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const toggleDarkMode = useCallback(() => {
     setDarkMode((prev) => !prev);
   }, []);
 
-  // Countdown timer effect for when free sessions are exhausted.
+  // Countdown for free sessions reset
   useEffect(() => {
     if (!expirationTime) return;
     const interval = setInterval(() => {
@@ -78,13 +71,23 @@ const FlashcardsPage = () => {
       const response = await fetch(`/api/flashcards?userId=${userId}`);
       const data = await response.json();
       if (data.success) {
-        setFlashcardHistory(data.data);
-        // Optionally, update freeSessionsLeft if your API returns that info.
+        setFlashcardHistory(data.data.history);
+        setFreeSessionsLeft(data.data.freeDailySessionsLeft);
       }
     } catch (error) {
       console.error("Error fetching sessions", error);
     }
   }, [userId]);
+  
+
+  // Auto-select the most recent session if none is selected
+  useEffect(() => {
+    if (flashcardHistory.length > 0 && !selectedSession) {
+      const mostRecent = flashcardHistory[0];
+      setSelectedSession(mostRecent);
+      setFlashcards(mostRecent.flashcards || []);
+    }
+  }, [flashcardHistory, selectedSession]);
 
   const toggleSidebar = useCallback(() => {
     setSidebarOpen((prev) => !prev);
@@ -103,9 +106,7 @@ const FlashcardsPage = () => {
         const data = await res.json();
         if (data.success) {
           setFlashcardHistory((prev) =>
-            prev.filter(
-              (item) => (item._id || item.id || item.sessionId) !== id
-            )
+            prev.filter((item) => (item._id || item.id || item.sessionId) !== id)
           );
           if (
             selectedSession &&
@@ -114,7 +115,8 @@ const FlashcardsPage = () => {
             setSelectedSession(null);
             setFlashcards([]);
           }
-          fetchSessions();
+          // Re-fetch sessions without altering freeSessionsLeft (free count remains unchanged on deletion)
+          await fetchSessions();
         } else {
           console.error("Delete failed", data.error);
         }
@@ -130,7 +132,6 @@ const FlashcardsPage = () => {
     setFlashcards(session.flashcards || []);
   }, []);
 
-  // Create a new session using the API.
   const createNewSession = useCallback(async () => {
     if (!userId) return;
     try {
@@ -139,10 +140,7 @@ const FlashcardsPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userId,
-          messageText: "New flashcard session",
-        }),
+        body: JSON.stringify({ userId, messageText: "New flashcard session" }),
       });
 
       if (!response.ok) {
@@ -160,16 +158,16 @@ const FlashcardsPage = () => {
 
       const data = await response.json();
       if (data.success) {
-        setFlashcardHistory((prev) => [...prev, data.data]);
+        // Refresh sessions to update valid IDs and state
+        await fetchSessions();
         openSession(data.data);
         setFreeSessionsLeft(data.data.freeDailySessionsLeft);
       }
     } catch (error) {
       console.error("Error creating session", error);
     }
-  }, [userId, openSession, expirationTime]);
+  }, [userId, openSession, expirationTime, fetchSessions]);
 
-  // Handle sending messages (generating flashcard sessions)
   const handleSendMessage = useCallback(
     async (payload) => {
       if (!userId) return;
@@ -187,9 +185,7 @@ const FlashcardsPage = () => {
         } else {
           response = await fetch("/api/flashcards", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId, messageText: payload }),
           });
         }
@@ -209,7 +205,8 @@ const FlashcardsPage = () => {
 
         const data = await response.json();
         if (data.success) {
-          setFlashcardHistory((prev) => [...prev, data.data]);
+          // Refresh sessions to ensure valid IDs in state.
+          await fetchSessions();
           openSession(data.data);
           setFreeSessionsLeft(data.data.freeDailySessionsLeft);
         }
@@ -219,7 +216,7 @@ const FlashcardsPage = () => {
         setLoading(false);
       }
     },
-    [userId, openSession, expirationTime]
+    [userId, openSession, expirationTime, fetchSessions]
   );
 
   useEffect(() => {
@@ -229,7 +226,6 @@ const FlashcardsPage = () => {
   if (loading) return null;
   if (!userId) return <div>Please log in to view your flashcards.</div>;
 
-  // Extract selected session id for comparison
   const selectedSessionId = selectedSession?._id || selectedSession?.id;
 
   return (
@@ -242,7 +238,6 @@ const FlashcardsPage = () => {
       />
 
       {/* Navbar */}
-  
       <Navbar className="pt-8 z-50 text-white max-md:text-black" hidden="hidden" />
 
       {/* Main Layout */}
@@ -257,8 +252,7 @@ const FlashcardsPage = () => {
 
         {/* Sidebar */}
         <div
-          className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all duration-300 ${sidebarOpen ? "w-72" : "w-0"
-            } overflow-hidden z-10`}
+          className={`bg-darkBlue text-white fixed left-0 top-0 h-full transition-all duration-300 ${sidebarOpen ? "w-72" : "w-0"} overflow-hidden z-10`}
         >
           {sidebarOpen && (
             <div className="mt-24 p-4 h-full overflow-y-auto scrollbar-hide">
@@ -271,7 +265,6 @@ const FlashcardsPage = () => {
               />
 
               <h2 className="text-lg m-2 font-semibold">Flashcard History</h2>
-              {/* Free Session Count Display */}
               <p className="m-2 text-sm">
                 Free Sessions Left:{" "}
                 {freeSessionsLeft !== null ? freeSessionsLeft : "Loading..."}
@@ -285,12 +278,10 @@ const FlashcardsPage = () => {
                     return (
                       <li
                         key={sessionId || index}
-                        className={`p-2 flex justify-between items-center hover:bg-gray-700 rounded-md mb-2 cursor-pointer ${selectedSessionId === sessionId ? "bg-gray-600" : ""
-                          }`}
+                        className={`p-2 flex justify-between items-center hover:bg-gray-700 rounded-md mb-2 cursor-pointer ${selectedSessionId === sessionId ? "bg-gray-600" : ""}`}
                         onClick={() => openSession(session)}
                       >
                         <span className="cursor-pointer">{session.title}</span>
-                        {/* Delete Button */}
                         <button
                           style={{ flexShrink: 0 }}
                           className="ml-2 transition-all duration-300 hover:text-red-500"
@@ -321,9 +312,7 @@ const FlashcardsPage = () => {
           {selectedSession ? (
             <ThreeDCarousel items={flashcards} />
           ) : (
-            <p className="text-gray-500 text-center">
-              Select a session to view flashcards.
-            </p>
+            <p className="text-gray-500 text-center">Select a session to view flashcards.</p>
           )}
         </main>
       </div>
