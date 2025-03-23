@@ -6,7 +6,7 @@ export const metadata = {
   description: "App from students, by students, for students",
   keywords: ["StudyBuddy", "Student App", "Education", "Learning", "Study"],
   icons: {
-    icon: "/images/favicon.svg",
+    icon: "/images/favicon.ico",
   }
 };
 
