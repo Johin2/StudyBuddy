@@ -40,7 +40,7 @@ describe('POST /api/signup', () => {
 
     expect(res.status).toBe(201);
     const data = await res.json();
-    expect(data).toEqual({ message: 'User Created' });
+    expect(data).toEqual({ success: true, message: 'User Created' });
   });
 
   it('should return an error for missing credentials', async () => {
